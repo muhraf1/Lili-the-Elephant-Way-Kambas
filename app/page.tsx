@@ -110,7 +110,7 @@ const AppContent = () => {
       <div className="container mx-auto px-4 py-6 max-w-md">
         <Tabs defaultValue="donate" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="donate" disabled={status !== "connected"}>Donate</TabsTrigger>
+            <TabsTrigger value="donate" >Donate</TabsTrigger>
             <TabsTrigger value="community">Community</TabsTrigger>
           </TabsList>
           
