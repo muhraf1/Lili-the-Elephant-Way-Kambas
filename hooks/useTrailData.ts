@@ -28,7 +28,7 @@ export interface UserData {
 }
 
 export function useTrailData() {
-  const { address } = useAccount()
+  const { address, status } = useAccount()
   const [crowdfundData, setCrowdfundData] = useState<CrowdfundData | null>(null)
   const [userData, setUserData] = useState<UserData | null>(null)
   const [donorsCount, setDonorsCount] = useState<string>("0")
@@ -85,23 +85,31 @@ export function useTrailData() {
       return
     }
 
+    if (status !== "connected") {
+      console.log("[v0] Wallet not connected, skipping user data fetch. Status:", status)
+      return
+    }
+
     try {
       console.log("[v0] Fetching user data for:", address)
 
       // Fetch user's USDC balance
       const balanceResponse = await TrailReadAPI.getUserUSDCBalance(address)
       const balance = balanceResponse.outputs?.[0]?.value || "0"
-      console.log("[v0] User USDC balance:", balance)
+      console.log("[v0] User USDC balance raw:", balance)
 
       // Fetch user's donation amount
       const donationResponse = await TrailReadAPI.getUserDonation(address)
       const donationAmount = donationResponse.outputs?.[0]?.value || "0"
       console.log("[v0] User donation amount:", donationAmount)
 
+      const formattedBalance = TrailUtils.formatTokenAmount(balance, 6, 4)
+      console.log("[v0] Formatted USDC balance:", formattedBalance)
+
       setUserData({
         usdcBalance: balance,
         donationAmount,
-        formattedUSDCBalance: TrailUtils.formatTokenAmount(balance),
+        formattedUSDCBalance: formattedBalance,
         formattedDonationAmount: TrailUtils.formatTokenAmount(donationAmount),
         hasDonated: BigInt(donationAmount) > 0n,
       })
@@ -134,7 +142,7 @@ export function useTrailData() {
 
   useEffect(() => {
     refetchData()
-  }, [address])
+  }, [address, status]) // Added status dependency to refetch when wallet connects
 
   return {
     crowdfundData,

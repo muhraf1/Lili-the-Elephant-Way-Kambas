@@ -189,20 +189,21 @@ export class TrailReadAPI {
 // Utility functions
 export class TrailUtils {
   // Convert raw blockchain values to human readable (divide by 10^decimals)
-  static formatTokenAmount(rawAmount: string, decimals = 6): string {
+  static formatTokenAmount(rawAmount: string, decimals = 6, displayDecimals = 4): string {
     const amount = BigInt(rawAmount)
     const divisor = BigInt(10 ** decimals)
     const wholePart = amount / divisor
     const fractionalPart = amount % divisor
 
     if (fractionalPart === 0n) {
-      return wholePart.toString()
+      return `${wholePart}.${"0".repeat(displayDecimals)}`
     }
 
     const fractionalStr = fractionalPart.toString().padStart(decimals, "0")
-    const trimmedFractional = fractionalStr.replace(/0+$/, "")
+    // Take only the first displayDecimals digits for display
+    const displayFractional = fractionalStr.slice(0, displayDecimals)
 
-    return trimmedFractional ? `${wholePart}.${trimmedFractional}` : wholePart.toString()
+    return `${wholePart}.${displayFractional}`
   }
 
   // Convert human readable amount to raw blockchain value (multiply by 10^decimals)
