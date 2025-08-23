@@ -94,12 +94,12 @@ const AppContent = () => {
         <div className="text-center mb-8">
           <div className="text-6xl mb-4">🐘</div>
           <h1 className="text-2xl font-bold text-green-800 dark:text-green-200 mb-2">Save Lili the Elephant</h1>
-          <p className="text-sm text-green-600 dark:text-green-400">Support Way Kambas National Park</p>
-        </div>
+          <p className="text-sm text-green-600 dark:text-green-400 mb-4">Support Way Kambas National Park</p>
 
-        {/* Wallet Connection */}
-        <div className="mb-6">
-          <FarcasterConnect />
+          {/* Wallet Connection */}
+          <div className="mb-6">
+            <FarcasterConnect />
+          </div>
         </div>
 
         {status === "connected" ? (

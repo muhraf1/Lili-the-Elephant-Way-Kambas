@@ -14,8 +14,7 @@ export function FarcasterConnect() {
   const { connect } = useConnect()
   const { disconnect } = useDisconnect()
   const [context, setContext] = useState<Context | null>(null)
-  const [retryCount, setRetryCount] = useState(0)
-  const maxRetries = 3
+  const [hasAttemptedConnect, setHasAttemptedConnect] = useState(false)
 
   useEffect(() => {
     const fetchContext = async () => {
@@ -33,38 +32,32 @@ export function FarcasterConnect() {
   useEffect(() => {
     console.log("[v0] Wallet status:", status, "address:", address)
 
-    if (status === "disconnected" && retryCount < maxRetries) {
+    if (status === "disconnected" && !hasAttemptedConnect) {
       const autoConnect = async () => {
         try {
-          console.log(`[v0] Attempting auto-connect (attempt ${retryCount + 1}/${maxRetries})...`)
+          console.log("[v0] Attempting initial auto-connect...")
+          setHasAttemptedConnect(true)
           connect({ connector: config.connectors[0] })
-          setRetryCount((prev) => prev + 1)
         } catch (error) {
           console.error("[v0] Auto-connect failed:", error)
-          setRetryCount((prev) => prev + 1)
         }
       }
 
-      // Exponential backoff: 500ms, 1s, 2s
-      const delay = 500 * Math.pow(2, retryCount)
-      const timer = setTimeout(autoConnect, delay)
+      // Single attempt with short delay
+      const timer = setTimeout(autoConnect, 500)
       return () => clearTimeout(timer)
     }
-
-    if (status === "connected") {
-      setRetryCount(0)
-    }
-  }, [status, connect, retryCount])
+  }, [status, connect, hasAttemptedConnect])
 
   const handleManualConnect = () => {
     console.log("[v0] Manual connect triggered")
-    setRetryCount(0)
+    setHasAttemptedConnect(true)
     connect({ connector: config.connectors[0] })
   }
 
   const handleDisconnect = () => {
     console.log("[v0] Manual disconnect triggered")
-    setRetryCount(0)
+    setHasAttemptedConnect(false)
     disconnect()
   }
 
@@ -101,11 +94,6 @@ export function FarcasterConnect() {
             <Wallet className="h-4 w-4" />
             {status === "connecting" ? "Connecting..." : "Connect Farcaster"}
           </Button>
-          {retryCount > 0 && (
-            <p className="text-xs text-muted-foreground text-center">
-              Connection attempt {retryCount}/{maxRetries}
-            </p>
-          )}
         </div>
       )}
     </div>

@@ -76,12 +76,17 @@ export function DonateStep({
     Number.parseFloat(amount) <= Number.parseFloat(maxAmount)
   const isCrowdfundEnded = crowdfundData?.isEnded || false
 
+  const formatBalanceAmount = (amount: string): string => {
+    const num = Number.parseFloat(amount)
+    return num.toFixed(4)
+  }
+
   const getBalanceText = () => {
     if (!address) return "Connect wallet to see balance"
     if (loading) return "Loading balance..."
-    if (approvedAmount) return `Approved: ${approvedAmount} USDC`
-    if (userData?.formattedUSDCBalance) return `Balance: ${userData.formattedUSDCBalance} USDC`
-    return "Balance: 0 USDC"
+    if (approvedAmount) return `Approved: ${formatBalanceAmount(approvedAmount)} USDC`
+    if (userData?.formattedUSDCBalance) return `Balance: ${formatBalanceAmount(userData.formattedUSDCBalance)} USDC`
+    return "Balance: 0.0000 USDC"
   }
 
   return (
