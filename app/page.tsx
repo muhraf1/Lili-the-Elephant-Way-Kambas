@@ -177,35 +177,12 @@ const AppContent = () => {
             <CommunityFeed />
           </TabsContent>
         </Tabs>
-      ) : (
-        <Tabs defaultValue="community" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="donate" disabled>Donate</TabsTrigger>
-            <TabsTrigger value="community">Community</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="community" className="space-y-6">
-            {/* Step Statistics */}
-            <StepStats />
-            
-            {/* Community Feed */}
-            <CommunityFeed />
-            
-            <div className="text-center py-4">
-              <p className="text-muted-foreground">
-                {status === "connecting"
-                  ? "Connecting to Farcaster..."
-                  : "Connect your Farcaster wallet to start donating"}
-              </p>
-            </div>
-          </TabsContent>
-        </Tabs>
-      )}
 
-      {/* Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t p-2">
-        <div className="text-center">
-          <p className="text-xs text-muted-foreground">⚡ Powered by Herd</p>
+        {/* Footer */}
+        <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t p-2">
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">⚡ Powered by Herd</p>
+          </div>
         </div>
       </div>
     </div>
