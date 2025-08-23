@@ -85,7 +85,7 @@ export function ApproveStep({
 
         {amount && !isValidAmount && (
           <p className="text-sm text-destructive">
-            {Number.parseFloat(amount) <= 0 ? "Amount must be greater than 0" : "Amount exceeds your USDC balance"}
+            {Number.parseFloat(amount) <= 0.00000 ? "Amount must be greater than  0.00000" : "Amount exceeds your USDC balance"}
           </p>
         )}
 
