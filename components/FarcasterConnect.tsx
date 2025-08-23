@@ -11,10 +11,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 
 export function FarcasterConnect() {
   const { address, status } = useAccount()
-  const { connect } = useConnect()
+  const { connect, error: connectError } = useConnect()
   const { disconnect } = useDisconnect()
   const [context, setContext] = useState<Context | null>(null)
   const [hasAttemptedConnect, setHasAttemptedConnect] = useState(false)
+  const [connectionError, setConnectionError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchContext = async () => {
@@ -32,32 +33,67 @@ export function FarcasterConnect() {
   useEffect(() => {
     console.log("[v0] Wallet status:", status, "address:", address)
 
-    if (status === "disconnected" && !hasAttemptedConnect) {
+    // Clear error when connection succeeds
+    if (status === "connected" && address) {
+      setConnectionError(null)
+    }
+
+    // Handle connection errors
+    if (connectError) {
+      console.error("[v0] Connection error:", connectError)
+      setConnectionError(connectError.message || "Failed to connect wallet")
+      setHasAttemptedConnect(false) // Allow retry
+    }
+
+    // Auto-connect only once when disconnected
+    if (status === "disconnected" && !hasAttemptedConnect && !connectionError) {
       const autoConnect = async () => {
         try {
           console.log("[v0] Attempting initial auto-connect...")
           setHasAttemptedConnect(true)
-          connect({ connector: config.connectors[0] })
+          setConnectionError(null)
+
+          const connector = config.connectors.find((c) => c.id === "farcasterMiniApp")
+          if (!connector) {
+            throw new Error("Farcaster connector not found")
+          }
+
+          await connect({ connector })
         } catch (error) {
           console.error("[v0] Auto-connect failed:", error)
+          setConnectionError(error instanceof Error ? error.message : "Auto-connect failed")
+          setHasAttemptedConnect(false) // Allow manual retry
         }
       }
 
-      // Single attempt with short delay
-      const timer = setTimeout(autoConnect, 500)
+      const timer = setTimeout(autoConnect, 1000)
       return () => clearTimeout(timer)
     }
-  }, [status, connect, hasAttemptedConnect])
+  }, [status, connect, hasAttemptedConnect, connectError, address, connectionError])
 
-  const handleManualConnect = () => {
-    console.log("[v0] Manual connect triggered")
-    setHasAttemptedConnect(true)
-    connect({ connector: config.connectors[0] })
+  const handleManualConnect = async () => {
+    try {
+      console.log("[v0] Manual connect triggered")
+      setHasAttemptedConnect(true)
+      setConnectionError(null)
+
+      const connector = config.connectors.find((c) => c.id === "farcasterMiniApp")
+      if (!connector) {
+        throw new Error("Farcaster connector not found")
+      }
+
+      await connect({ connector })
+    } catch (error) {
+      console.error("[v0] Manual connect failed:", error)
+      setConnectionError(error instanceof Error ? error.message : "Connection failed")
+      setHasAttemptedConnect(false)
+    }
   }
 
   const handleDisconnect = () => {
     console.log("[v0] Manual disconnect triggered")
     setHasAttemptedConnect(false)
+    setConnectionError(null)
     disconnect()
   }
 
@@ -94,6 +130,7 @@ export function FarcasterConnect() {
             <Wallet className="h-4 w-4" />
             {status === "connecting" ? "Connecting..." : "Connect Farcaster"}
           </Button>
+          {connectionError && <p className="text-xs text-red-500 text-center">{connectionError}</p>}
         </div>
       )}
     </div>
