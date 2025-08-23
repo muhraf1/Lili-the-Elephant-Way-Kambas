@@ -108,94 +108,104 @@ const AppContent = () => {
       </nav>
 
       <div className="container mx-auto px-4 py-6 max-w-md">
-        {status === "connected" ? (
-          <Tabs defaultValue="donate" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="donate">Donate</TabsTrigger>
-              <TabsTrigger value="community">Community</TabsTrigger>
-            </TabsList>
+        <Tabs defaultValue="donate" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="donate" disabled={status !== "connected"}>Donate</TabsTrigger>
+            <TabsTrigger value="community">Community</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="donate" className="space-y-6">
+            {status === "connected" ? (
+              <>
+                <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4 border border-green-200 dark:border-green-800">
+                  <h2 className="text-xl font-semibold text-green-800 dark:text-green-200 mb-2">Campaign Preview</h2>
+                  <p className="text-sm text-green-600 dark:text-green-400 mb-4">
+                    Help save Lili and support elephant conservation at Way Kambas National Park. Every donation makes a
+                    difference in protecting these magnificent creatures.
+                  </p>
+                </div>
 
-            <TabsContent value="donate" className="space-y-6">
-              <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4 border border-green-200 dark:border-green-800">
-                <h2 className="text-xl font-semibold text-green-800 dark:text-green-200 mb-2">Campaign Preview</h2>
-                <p className="text-sm text-green-600 dark:text-green-400 mb-4">
-                  Help save Lili and support elephant conservation at Way Kambas National Park. Every donation makes a
-                  difference in protecting these magnificent creatures.
-                </p>
-              </div>
+                {/* Crowdfund Progress */}
+                <CrowdfundProgress />
 
-              {/* Crowdfund Progress */}
-              <CrowdfundProgress />
+                {/* Step Components */}
+                <div className="space-y-4">
+                  <ApproveStep
+                    status={getStepStatusForUI(1)}
+                    isCollapsed={collapsedSteps[1]}
+                    onToggleCollapse={() => toggleStepCollapse(1)}
+                    onAmountChange={setApprovedAmount}
+                    defaultAmount={approvedAmount}
+                    onTransactionSuccess={handleTransactionSuccess}
+                  />
 
-              {/* Step Components */}
-              <div className="space-y-4">
-                <ApproveStep
-                  status={getStepStatusForUI(1)}
-                  isCollapsed={collapsedSteps[1]}
-                  onToggleCollapse={() => toggleStepCollapse(1)}
-                  onAmountChange={setApprovedAmount}
-                  defaultAmount={approvedAmount}
-                  onTransactionSuccess={handleTransactionSuccess}
-                />
+                  <DonateStep
+                    status={getStepStatusForUI(2)}
+                    isCollapsed={collapsedSteps[2]}
+                    onToggleCollapse={() => toggleStepCollapse(2)}
+                    approvedAmount={approvedAmount}
+                    onTransactionSuccess={handleTransactionSuccess}
+                  />
 
-                <DonateStep
-                  status={getStepStatusForUI(2)}
-                  isCollapsed={collapsedSteps[2]}
-                  onToggleCollapse={() => toggleStepCollapse(2)}
-                  approvedAmount={approvedAmount}
-                  onTransactionSuccess={handleTransactionSuccess}
-                />
+                  <RefundStep
+                    status={getStepStatusForUI(3)}
+                    isCollapsed={collapsedSteps[3]}
+                    onToggleCollapse={() => toggleStepCollapse(3)}
+                    onTransactionSuccess={handleTransactionSuccess}
+                  />
+                </div>
 
-                <RefundStep
-                  status={getStepStatusForUI(3)}
-                  isCollapsed={collapsedSteps[3]}
-                  onToggleCollapse={() => toggleStepCollapse(3)}
-                  onTransactionSuccess={handleTransactionSuccess}
-                />
-              </div>
-
-              {/* User's Execution History */}
-              <ExecutionHistory />
-            </TabsContent>
-
-            <TabsContent value="community" className="space-y-6">
-              {/* Step Statistics */}
-              <StepStats />
-
-              {/* Community Feed */}
-              <CommunityFeed />
-            </TabsContent>
-          </Tabs>
-        ) : (
-          <Tabs defaultValue="community" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="donate" disabled>Donate</TabsTrigger>
-              <TabsTrigger value="community">Community</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="community" className="space-y-6">
-              {/* Step Statistics */}
-              <StepStats />
-              
-              {/* Community Feed */}
-              <CommunityFeed />
-              
-              <div className="text-center py-4">
+                {/* User's Execution History */}
+                <ExecutionHistory />
+              </>
+            ) : (
+              <div className="text-center py-8">
                 <p className="text-muted-foreground">
                   {status === "connecting"
                     ? "Connecting to Farcaster..."
                     : "Connect your Farcaster wallet to start donating"}
                 </p>
               </div>
-            </TabsContent>
-          </Tabs>
-        )}
+            )}
+          </TabsContent>
 
-        {/* Footer */}
-        <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t p-2">
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground">⚡ Powered by Herd</p>
-          </div>
+          <TabsContent value="community" className="space-y-6">
+            {/* Step Statistics */}
+            <StepStats />
+
+            {/* Community Feed */}
+            <CommunityFeed />
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <Tabs defaultValue="community" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="donate" disabled>Donate</TabsTrigger>
+            <TabsTrigger value="community">Community</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="community" className="space-y-6">
+            {/* Step Statistics */}
+            <StepStats />
+            
+            {/* Community Feed */}
+            <CommunityFeed />
+            
+            <div className="text-center py-4">
+              <p className="text-muted-foreground">
+                {status === "connecting"
+                  ? "Connecting to Farcaster..."
+                  : "Connect your Farcaster wallet to start donating"}
+              </p>
+            </div>
+          </TabsContent>
+        </Tabs>
+      )}
+
+      {/* Footer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t p-2">
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground">⚡ Powered by Herd</p>
         </div>
       </div>
     </div>
