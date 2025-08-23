@@ -30,6 +30,8 @@ export function DonateStep({
   const [showCelebration, setShowCelebration] = useState(false)
   const { address } = useAccount()
 
+  const MIN_DONATION_AMOUNT = 0.0001
+
   const { userData, crowdfundData, loading } = useTrailData()
 
   console.log("[v0] DonateStep - status:", status)
@@ -51,7 +53,7 @@ export function DonateStep({
   }
 
   const handleSubmit = async () => {
-    if (!amount || Number.parseFloat(amount) <= 0) return
+    if (!amount || Number.parseFloat(amount) < MIN_DONATION_AMOUNT) return
 
     try {
       // Convert to raw amount (multiply by 10^6 for USDC)
@@ -69,7 +71,9 @@ export function DonateStep({
 
   const maxAmount = approvedAmount || userData?.formattedUSDCBalance || "0"
   const isValidAmount =
-    amount && Number.parseFloat(amount) > 0 && Number.parseFloat(amount) <= Number.parseFloat(maxAmount)
+    amount &&
+    Number.parseFloat(amount) >= MIN_DONATION_AMOUNT &&
+    Number.parseFloat(amount) <= Number.parseFloat(maxAmount)
   const isCrowdfundEnded = crowdfundData?.isEnded || false
 
   const getBalanceText = () => {
@@ -105,7 +109,7 @@ export function DonateStep({
             <Input
               id="donate-amount"
               type="text"
-              placeholder="0.00"
+              placeholder={`${MIN_DONATION_AMOUNT} minimum`}
               value={amount}
               onChange={(e) => handleAmountChange(e.target.value)}
               disabled={status === "disabled" || isProcessing || isCrowdfundEnded}
@@ -116,8 +120,8 @@ export function DonateStep({
 
           {amount && !isValidAmount && (
             <p className="text-sm text-destructive">
-              {Number.parseFloat(amount) <= 0
-                ? "Amount must be greater than 0"
+              {Number.parseFloat(amount) < MIN_DONATION_AMOUNT
+                ? `Minimum donation amount is ${MIN_DONATION_AMOUNT} USDC`
                 : `Amount exceeds your ${approvedAmount ? "approved" : "available"} balance`}
             </p>
           )}
