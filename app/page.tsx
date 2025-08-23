@@ -167,13 +167,28 @@ const AppContent = () => {
             </TabsContent>
           </Tabs>
         ) : (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">
-              {status === "connecting"
-                ? "Connecting to Farcaster..."
-                : "Connect your Farcaster wallet to start donating"}
-            </p>
-          </div>
+          <Tabs defaultValue="community" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="donate" disabled>Donate</TabsTrigger>
+              <TabsTrigger value="community">Community</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="community" className="space-y-6">
+              {/* Step Statistics */}
+              <StepStats />
+              
+              {/* Community Feed */}
+              <CommunityFeed />
+              
+              <div className="text-center py-4">
+                <p className="text-muted-foreground">
+                  {status === "connecting"
+                    ? "Connecting to Farcaster..."
+                    : "Connect your Farcaster wallet to start donating"}
+                </p>
+              </div>
+            </TabsContent>
+          </Tabs>
         )}
 
         {/* Footer */}
