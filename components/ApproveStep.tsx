@@ -30,9 +30,12 @@ export function ApproveStep({
   const { userData, loading } = useTrailData()
   const { executeStep, isProcessing, error } = useTrailTransaction(onTransactionSuccess)
 
+  // Debug: Log userData to inspect balance
+  console.log("[ApproveStep] userData:", userData, "loading:", loading)
+
   const handleAmountChange = useCallback((value: string) => {
-    // Allow empty input, digits, and a single decimal point with up to 6 decimals
-    if (value === "" || /^(\d+(\.\d{0,6})?)?$/.test(value)) {
+    // Allow empty input, integers, or decimals with up to 6 digits
+    if (value === "" || /^\d*(\.\d{0,6})?$/.test(value)) {
       setAmount(value)
       onAmountChange?.(value)
     }
@@ -51,8 +54,8 @@ export function ApproveStep({
 
   // Ensure maxBalance is a valid number, default to "0" if invalid
   const maxBalance = userData?.formattedUSDCBalance && !isNaN(Number.parseFloat(userData.formattedUSDCBalance))
-    ? userData.formattedUSDCBalance
-    : "0"
+    ? Number.parseFloat(userData.formattedUSDCBalance).toFixed(6)
+    : "0.000000"
 
   // Validate amount
   const parsedAmount = amount ? Number.parseFloat(amount) : 0
@@ -62,14 +65,23 @@ export function ApproveStep({
     !isNaN(parsedAmount) &&
     parsedAmount > 0 &&
     parsedAmount <= parsedMaxBalance &&
-    /^(\d+(\.\d{1,6})?)?$/.test(amount) // Ensure valid format and max 6 decimals
+    /^\d*(\.\d{1,6})?$/.test(amount)
+
+  // Debug: Log validation details
+  console.log("[ApproveStep] Validation:", {
+    amount,
+    parsedAmount,
+    maxBalance,
+    parsedMaxBalance,
+    isValidAmount,
+  })
 
   // Error message for invalid amount
   const getErrorMessage = () => {
     if (amount === "") return null
-    if (!/^\d+(\.\d{1,6})?$/.test(amount)) return "Please enter a valid number (up to 6 decimals)"
+    if (!/^\d*(\.\d{1,6})?$/.test(amount)) return "Please enter a valid number (up to 6 decimals)"
     if (parsedAmount <= 0) return "Amount must be greater than 0"
-    if (parsedAmount > parsedMaxBalance) return "Amount exceeds your USDC balance"
+    if (parsedAmount > parsedMaxBalance) return `Amount exceeds your USDC balance (${maxBalance} USDC)`
     return null
   }
 
@@ -95,11 +107,9 @@ export function ApproveStep({
             disabled={status === "disabled" || isProcessing}
             className="mt-1"
           />
-          {userData && (
-            <p className="text-xs text-muted-foreground mt-1">
-              Balance: {loading ? "Loading..." : `${maxBalance} USDC`}
-            </p>
-          )}
+          <p className="text-sm font-medium text-foreground mt-2">
+            Wallet Balance: {loading ? "Loading..." : userData?.formattedUSDCBalance ? `${maxBalance} USDC` : "0.000000 USDC"}
+          </p>
         </div>
 
         {amount && getErrorMessage() && (
