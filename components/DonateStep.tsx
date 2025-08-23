@@ -9,6 +9,7 @@ import { ElephantCelebration } from "./ElephantCelebration"
 import { useTrailData } from "@/hooks/useTrailData"
 import { useTrailTransaction } from "@/hooks/useTrailTransaction"
 import { TrailUtils } from "@/lib/trail-api"
+import { useAccount } from "wagmi"
 
 interface DonateStepProps {
   status: "pending" | "active" | "completed" | "disabled"
@@ -27,8 +28,14 @@ export function DonateStep({
 }: DonateStepProps) {
   const [amount, setAmount] = useState("")
   const [showCelebration, setShowCelebration] = useState(false)
+  const { address } = useAccount()
 
   const { userData, crowdfundData, loading } = useTrailData()
+
+  console.log("[v0] DonateStep - status:", status)
+  console.log("[v0] DonateStep - userData:", userData)
+  console.log("[v0] DonateStep - approvedAmount:", approvedAmount)
+  console.log("[v0] DonateStep - address:", address)
 
   const handleTransactionSuccess = () => {
     setShowCelebration(true)
@@ -65,6 +72,14 @@ export function DonateStep({
     amount && Number.parseFloat(amount) > 0 && Number.parseFloat(amount) <= Number.parseFloat(maxAmount)
   const isCrowdfundEnded = crowdfundData?.isEnded || false
 
+  const getBalanceText = () => {
+    if (!address) return "Connect wallet to see balance"
+    if (loading) return "Loading balance..."
+    if (approvedAmount) return `Approved: ${approvedAmount} USDC`
+    if (userData?.formattedUSDCBalance) return `Balance: ${userData.formattedUSDCBalance} USDC`
+    return "Balance: 0 USDC"
+  }
+
   return (
     <>
       <StepCard
@@ -96,13 +111,7 @@ export function DonateStep({
               disabled={status === "disabled" || isProcessing || isCrowdfundEnded}
               className="mt-1"
             />
-            <p className="text-xs text-muted-foreground mt-1">
-              {approvedAmount
-                ? `Approved: ${approvedAmount} USDC`
-                : loading
-                  ? "Loading..."
-                  : `Balance: ${maxAmount} USDC`}
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">{getBalanceText()}</p>
           </div>
 
           {amount && !isValidAmount && (

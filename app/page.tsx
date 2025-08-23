@@ -23,8 +23,12 @@ const AppContent = () => {
   const [approvedAmount, setApprovedAmount] = useState<string>("")
   const { address, status } = useAccount()
 
-  const { executions, refetchHistory, loading: historyLoading } = useExecutionHistory()
-  const { refetchData } = useTrailData()
+  const { executions, getStepStatus, getCurrentStep, refetchHistory, loading: historyLoading } = useExecutionHistory()
+  const { refetchData, crowdfundData } = useTrailData()
+
+  console.log("[v0] App - wallet status:", status, "address:", address)
+  console.log("[v0] App - executions:", executions)
+  console.log("[v0] App - current step:", getCurrentStep())
 
   // Call sdk.actions.ready() when app is ready
   useEffect(() => {
@@ -50,17 +54,17 @@ const AppContent = () => {
   }, [isAppReady])
 
   useEffect(() => {
-    if (!historyLoading) {
+    if (!historyLoading && address) {
       const newCollapsedSteps: Record<number, boolean> = {}
       for (let i = 1; i <= 3; i++) {
-        const stepStatus = executions.find((execution) => execution.step === i)?.status
-        if (stepStatus === "completed") {
+        const stepStatus = getStepStatus(i)
+        if (stepStatus.status === "completed") {
           newCollapsedSteps[i] = true
         }
       }
       setCollapsedSteps(newCollapsedSteps)
     }
-  }, [historyLoading, executions])
+  }, [historyLoading, address, getStepStatus])
 
   const toggleStepCollapse = (stepNumber: number) => {
     setCollapsedSteps((prev) => ({
@@ -72,6 +76,15 @@ const AppContent = () => {
   const handleTransactionSuccess = () => {
     refetchHistory()
     refetchData()
+  }
+
+  const getStepStatusForUI = (stepNumber: number) => {
+    if (!address) return "disabled"
+
+    const stepStatus = getStepStatus(stepNumber)
+    console.log(`[v0] Step ${stepNumber} status:`, stepStatus)
+
+    return stepStatus.status
   }
 
   return (
@@ -103,7 +116,7 @@ const AppContent = () => {
               {/* Step Components */}
               <div className="space-y-4">
                 <ApproveStep
-                  status={executions.find((execution) => execution.step === 1)?.status || "pending"}
+                  status={getStepStatusForUI(1)}
                   isCollapsed={collapsedSteps[1]}
                   onToggleCollapse={() => toggleStepCollapse(1)}
                   onAmountChange={setApprovedAmount}
@@ -112,7 +125,7 @@ const AppContent = () => {
                 />
 
                 <DonateStep
-                  status={executions.find((execution) => execution.step === 2)?.status || "pending"}
+                  status={getStepStatusForUI(2)}
                   isCollapsed={collapsedSteps[2]}
                   onToggleCollapse={() => toggleStepCollapse(2)}
                   approvedAmount={approvedAmount}
@@ -120,7 +133,7 @@ const AppContent = () => {
                 />
 
                 <RefundStep
-                  status={executions.find((execution) => execution.step === 3)?.status || "pending"}
+                  status={getStepStatusForUI(3)}
                   isCollapsed={collapsedSteps[3]}
                   onToggleCollapse={() => toggleStepCollapse(3)}
                   onTransactionSuccess={handleTransactionSuccess}

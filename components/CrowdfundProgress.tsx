@@ -9,6 +9,9 @@ import { useTrailData } from "@/hooks/useTrailData"
 export function CrowdfundProgress() {
   const { crowdfundData, donorsCount, loading } = useTrailData()
 
+  console.log("[v0] CrowdfundProgress - crowdfundData:", crowdfundData)
+  console.log("[v0] CrowdfundProgress - donorsCount:", donorsCount)
+
   if (loading) {
     return (
       <Card>
@@ -43,7 +46,7 @@ export function CrowdfundProgress() {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Crowdfund Progress</CardTitle>
+          <CardTitle className="text-lg">Save Lili the Elephant</CardTitle>
           <Badge variant={isEnded ? (isGoalReached ? "default" : "destructive") : "secondary"}>
             {isEnded ? (isGoalReached ? "Success" : "Failed") : "Active"}
           </Badge>
@@ -64,16 +67,24 @@ export function CrowdfundProgress() {
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
-            <span>{donorsCount} donors</span>
+            <span>
+              {donorsCount || "0"} donor{donorsCount !== "1" ? "s" : ""}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs">{isEnded ? "Ended" : "Ends"}</span>
+            <span className="text-xs">
+              {isEnded ? "Ended" : "Ends"} {formattedEndDate}
+            </span>
           </div>
         </div>
 
-        <div className="text-xs text-muted-foreground">
-          <p>{formattedEndDate}</p>
+        <div className="text-xs text-muted-foreground bg-green-50 dark:bg-green-950 p-3 rounded-lg">
+          <p className="font-medium text-green-700 dark:text-green-300 mb-1">Way Kambas National Park</p>
+          <p className="text-green-600 dark:text-green-400">
+            Help protect Lili and other endangered Sumatran elephants in their natural habitat. Your donation supports
+            conservation efforts and anti-poaching initiatives.
+          </p>
         </div>
 
         {isEnded && !isGoalReached && (
