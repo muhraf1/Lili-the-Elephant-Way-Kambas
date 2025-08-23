@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { Input } from "./ui/input"
 import { Button } from "./ui/button"
 import { Label } from "./ui/label"
@@ -30,19 +30,18 @@ export function ApproveStep({
   const { userData, loading } = useTrailData()
   const { executeStep, isProcessing, error } = useTrailTransaction(onTransactionSuccess)
 
-  const handleAmountChange = (value: string) => {
-    // Only allow numbers and decimal point
-    if (!/^\d*\.?\d*$/.test(value)) return
-
-    setAmount(value)
-    onAmountChange?.(value)
-  }
+  const handleAmountChange = useCallback((value: string) => {
+    // Allow empty input, digits, and a single decimal point with up to 6 decimals
+    if (value === "" || /^(\d+(\.\d{0,6})?)?$/.test(value)) {
+      setAmount(value)
+      onAmountChange?.(value)
+    }
+  }, [onAmountChange])
 
   const handleSubmit = async () => {
     if (!amount || Number.parseFloat(amount) <= 0) return
 
     try {
-      // Convert to raw amount (multiply by 10^6 for USDC)
       const rawAmount = TrailUtils.parseTokenAmount(amount, 6)
       await executeStep(1, rawAmount)
     } catch (err) {
@@ -50,9 +49,29 @@ export function ApproveStep({
     }
   }
 
-  const maxBalance = userData?.formattedUSDCBalance || "0"
+  // Ensure maxBalance is a valid number, default to "0" if invalid
+  const maxBalance = userData?.formattedUSDCBalance && !isNaN(Number.parseFloat(userData.formattedUSDCBalance))
+    ? userData.formattedUSDCBalance
+    : "0"
+
+  // Validate amount
+  const parsedAmount = amount ? Number.parseFloat(amount) : 0
+  const parsedMaxBalance = Number.parseFloat(maxBalance)
   const isValidAmount =
-    amount && Number.parseFloat(amount) > 0 && Number.parseFloat(amount) <= Number.parseFloat(maxBalance)
+    amount !== "" &&
+    !isNaN(parsedAmount) &&
+    parsedAmount > 0 &&
+    parsedAmount <= parsedMaxBalance &&
+    /^(\d+(\.\d{1,6})?)?$/.test(amount) // Ensure valid format and max 6 decimals
+
+  // Error message for invalid amount
+  const getErrorMessage = () => {
+    if (amount === "") return null
+    if (!/^\d+(\.\d{1,6})?$/.test(amount)) return "Please enter a valid number (up to 6 decimals)"
+    if (parsedAmount <= 0) return "Amount must be greater than 0"
+    if (parsedAmount > parsedMaxBalance) return "Amount exceeds your USDC balance"
+    return null
+  }
 
   return (
     <StepCard
@@ -83,10 +102,8 @@ export function ApproveStep({
           )}
         </div>
 
-        {amount && !isValidAmount && (
-          <p className="text-sm text-destructive">
-            {Number.parseFloat(amount) <= 0.00000 ? "Amount must be greater than  0.00000" : "Amount exceeds your USDC balance"}
-          </p>
+        {amount && getErrorMessage() && (
+          <p className="text-sm text-destructive">{getErrorMessage()}</p>
         )}
 
         <Button
