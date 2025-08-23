@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react"
 import { Wallet, User } from "lucide-react"
 import { useAccount, useConnect, useDisconnect } from "wagmi"
-import { config } from "./Web3Provider"
 import { sdk } from "@farcaster/miniapp-sdk"
 import type { Context } from "@farcaster/miniapp-sdk"
 import { Button } from "./ui/button"
@@ -11,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 
 export function FarcasterConnect() {
   const { address, status } = useAccount()
-  const { connect, error: connectError } = useConnect()
+  const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
   const [context, setContext] = useState<Context | null>(null)
   const [hasAttemptedConnect, setHasAttemptedConnect] = useState(false)
@@ -32,20 +31,17 @@ export function FarcasterConnect() {
 
   useEffect(() => {
     console.log("[v0] Wallet status:", status, "address:", address)
+    console.log(
+      "[v0] Available connectors:",
+      connectors.map((c) => ({ id: c.id, name: c.name })),
+    )
 
     // Clear error when connection succeeds
     if (status === "connected" && address) {
       setConnectionError(null)
+      console.log("[v0] Wallet successfully connected:", address)
     }
 
-    // Handle connection errors
-    if (connectError) {
-      console.error("[v0] Connection error:", connectError)
-      setConnectionError(connectError.message || "Failed to connect wallet")
-      setHasAttemptedConnect(false) // Allow retry
-    }
-
-    // Auto-connect only once when disconnected
     if (status === "disconnected" && !hasAttemptedConnect && !connectionError) {
       const autoConnect = async () => {
         try {
@@ -53,23 +49,34 @@ export function FarcasterConnect() {
           setHasAttemptedConnect(true)
           setConnectionError(null)
 
-          const connector = config.connectors.find((c) => c.id === "farcasterMiniApp")
-          if (!connector) {
-            throw new Error("Farcaster connector not found")
-          }
+          // Find the Farcaster connector specifically
+          const farcasterConnector = connectors.find(
+            (c) => c.id === "farcaster" || c.name.toLowerCase().includes("farcaster") || c.id.includes("miniapp"),
+          )
 
-          await connect({ connector })
+          if (!farcasterConnector) {
+            // Fallback to first connector if Farcaster not found
+            const firstConnector = connectors[0]
+            if (!firstConnector) {
+              throw new Error("No connectors available")
+            }
+            console.log("[v0] Using fallback connector:", firstConnector.id, firstConnector.name)
+            await connect({ connector: firstConnector })
+          } else {
+            console.log("[v0] Using Farcaster connector:", farcasterConnector.id, farcasterConnector.name)
+            await connect({ connector: farcasterConnector })
+          }
         } catch (error) {
           console.error("[v0] Auto-connect failed:", error)
           setConnectionError(error instanceof Error ? error.message : "Auto-connect failed")
-          setHasAttemptedConnect(false) // Allow manual retry
+          setHasAttemptedConnect(false)
         }
       }
 
-      const timer = setTimeout(autoConnect, 1000)
+      const timer = setTimeout(autoConnect, 500)
       return () => clearTimeout(timer)
     }
-  }, [status, connect, hasAttemptedConnect, connectError, address, connectionError])
+  }, [status, connect, connectors, hasAttemptedConnect, address, connectionError])
 
   const handleManualConnect = async () => {
     try {
@@ -77,12 +84,21 @@ export function FarcasterConnect() {
       setHasAttemptedConnect(true)
       setConnectionError(null)
 
-      const connector = config.connectors.find((c) => c.id === "farcasterMiniApp")
-      if (!connector) {
-        throw new Error("Farcaster connector not found")
-      }
+      const farcasterConnector = connectors.find(
+        (c) => c.id === "farcaster" || c.name.toLowerCase().includes("farcaster") || c.id.includes("miniapp"),
+      )
 
-      await connect({ connector })
+      if (!farcasterConnector) {
+        const firstConnector = connectors[0]
+        if (!firstConnector) {
+          throw new Error("No connectors available")
+        }
+        console.log("[v0] Using fallback connector:", firstConnector.id, firstConnector.name)
+        await connect({ connector: firstConnector })
+      } else {
+        console.log("[v0] Using Farcaster connector:", farcasterConnector.id, farcasterConnector.name)
+        await connect({ connector: farcasterConnector })
+      }
     } catch (error) {
       console.error("[v0] Manual connect failed:", error)
       setConnectionError(error instanceof Error ? error.message : "Connection failed")

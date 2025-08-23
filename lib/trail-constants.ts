@@ -36,3 +36,12 @@ export const STEPS = {
     description: "Get your money back if the goal was not reached",
   },
 } as const
+
+export const TOKEN_CONFIG = {
+  USDC: {
+    address: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    decimals: 6,
+    symbol: "USDC",
+    name: "USD Coin",
+  },
+} as const

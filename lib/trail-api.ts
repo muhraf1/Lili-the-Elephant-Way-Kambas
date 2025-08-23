@@ -139,7 +139,9 @@ export class TrailReadAPI {
   static async getUserUSDCBalance(walletAddress: string, executionId?: string) {
     const request: ReadRequest = {
       walletAddress,
-      userInputs: {}, // No user inputs required for balance check
+      userInputs: TrailInputBuilder.buildReadInputs("0198d5f9-841e-7841-8173-3a46904055f5", {
+        "inputs.token": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", // USDC contract address on Base
+      }),
       execution: executionId ? { type: "manual", executionId } : { type: "latest" },
     }
 
