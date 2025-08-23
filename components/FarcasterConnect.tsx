@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react"
 import { Wallet, User } from "lucide-react"
 import { useAccount, useConnect, useDisconnect } from "wagmi"
-import { sdk } from "@farcaster/miniapp-sdk"
-import type { Context } from "@farcaster/miniapp-sdk"
 import { Button } from "./ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 
@@ -12,22 +10,7 @@ export function FarcasterConnect() {
   const { address, status } = useAccount()
   const { connect, connectors } = useConnect()
   const { disconnect } = useDisconnect()
-  const [context, setContext] = useState<Context | null>(null)
-  const [hasAttemptedConnect, setHasAttemptedConnect] = useState(false)
   const [connectionError, setConnectionError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const fetchContext = async () => {
-      try {
-        const context = await sdk.context
-        console.log("[v0] Farcaster context:", context)
-        setContext(context)
-      } catch (error) {
-        console.error("[v0] Failed to fetch Farcaster context:", error)
-      }
-    }
-    fetchContext()
-  }, [])
 
   useEffect(() => {
     console.log("[v0] Wallet status:", status, "address:", address)
@@ -41,47 +24,11 @@ export function FarcasterConnect() {
       setConnectionError(null)
       console.log("[v0] Wallet successfully connected:", address)
     }
-
-    if (status === "disconnected" && !hasAttemptedConnect && !connectionError) {
-      const autoConnect = async () => {
-        try {
-          console.log("[v0] Attempting initial auto-connect...")
-          setHasAttemptedConnect(true)
-          setConnectionError(null)
-
-          // Find the Farcaster connector specifically
-          const farcasterConnector = connectors.find(
-            (c) => c.id === "farcaster" || c.name.toLowerCase().includes("farcaster") || c.id.includes("miniapp"),
-          )
-
-          if (!farcasterConnector) {
-            // Fallback to first connector if Farcaster not found
-            const firstConnector = connectors[0]
-            if (!firstConnector) {
-              throw new Error("No connectors available")
-            }
-            console.log("[v0] Using fallback connector:", firstConnector.id, firstConnector.name)
-            await connect({ connector: firstConnector })
-          } else {
-            console.log("[v0] Using Farcaster connector:", farcasterConnector.id, farcasterConnector.name)
-            await connect({ connector: farcasterConnector })
-          }
-        } catch (error) {
-          console.error("[v0] Auto-connect failed:", error)
-          setConnectionError(error instanceof Error ? error.message : "Auto-connect failed")
-          setHasAttemptedConnect(false)
-        }
-      }
-
-      const timer = setTimeout(autoConnect, 500)
-      return () => clearTimeout(timer)
-    }
-  }, [status, connect, connectors, hasAttemptedConnect, address, connectionError])
+  }, [status, address])
 
   const handleManualConnect = async () => {
     try {
       console.log("[v0] Manual connect triggered")
-      setHasAttemptedConnect(true)
       setConnectionError(null)
 
       const farcasterConnector = connectors.find(
@@ -102,13 +49,11 @@ export function FarcasterConnect() {
     } catch (error) {
       console.error("[v0] Manual connect failed:", error)
       setConnectionError(error instanceof Error ? error.message : "Connection failed")
-      setHasAttemptedConnect(false)
     }
   }
 
   const handleDisconnect = () => {
     console.log("[v0] Manual disconnect triggered")
-    setHasAttemptedConnect(false)
     setConnectionError(null)
     disconnect()
   }
@@ -119,13 +64,13 @@ export function FarcasterConnect() {
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={context?.user.pfp_url || "/placeholder.svg"} alt={context?.user.username || "User"} />
+              <AvatarImage src="/placeholder.svg" alt="User" />
               <AvatarFallback>
                 <User className="h-5 w-5" />
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="font-medium text-sm">@{context?.user.username || "Connected"}</span>
+              <span className="font-medium text-sm">Connected</span>
               <span className="text-xs text-muted-foreground">
                 {address.slice(0, 6)}...{address.slice(-4)}
               </span>

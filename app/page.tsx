@@ -89,19 +89,25 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950 dark:to-emerald-950">
-      <div className="container mx-auto px-4 py-8 max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="text-6xl mb-4">🐘</div>
-          <h1 className="text-2xl font-bold text-green-800 dark:text-green-200 mb-2">Save Lili the Elephant</h1>
-          <p className="text-sm text-green-600 dark:text-green-400 mb-4">Support Way Kambas National Park</p>
-
-          {/* Wallet Connection */}
-          <div className="mb-6">
-            <FarcasterConnect />
+      {/* Navbar */}
+      <nav className="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b border-green-200 dark:border-green-800">
+        <div className="container mx-auto px-4 py-3 max-w-md">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="text-3xl">🐘</div>
+              <div>
+                <h1 className="text-lg font-bold text-green-800 dark:text-green-200">Save Lili</h1>
+                <p className="text-xs text-green-600 dark:text-green-400">Way Kambas Park</p>
+              </div>
+            </div>
+            <div className="flex-shrink-0">
+              <FarcasterConnect />
+            </div>
           </div>
         </div>
+      </nav>
 
+      <div className="container mx-auto px-4 py-6 max-w-md">
         {status === "connected" ? (
           <Tabs defaultValue="donate" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2">
@@ -110,6 +116,14 @@ const AppContent = () => {
             </TabsList>
 
             <TabsContent value="donate" className="space-y-6">
+              <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4 border border-green-200 dark:border-green-800">
+                <h2 className="text-xl font-semibold text-green-800 dark:text-green-200 mb-2">Campaign Preview</h2>
+                <p className="text-sm text-green-600 dark:text-green-400 mb-4">
+                  Help save Lili and support elephant conservation at Way Kambas National Park. Every donation makes a
+                  difference in protecting these magnificent creatures.
+                </p>
+              </div>
+
               {/* Crowdfund Progress */}
               <CrowdfundProgress />
 
