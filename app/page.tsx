@@ -115,8 +115,7 @@ const AppContent = () => {
           </TabsList>
           
           <TabsContent value="donate" className="space-y-6">
-            {status === "connected" ? (
-              <>
+          
                 <div className="bg-white/50 dark:bg-gray-900/50 rounded-lg p-4 border border-green-200 dark:border-green-800">
                   <h2 className="text-xl font-semibold text-green-800 dark:text-green-200 mb-2">Campaign Preview</h2>
                   <p className="text-sm text-green-600 dark:text-green-400 mb-4">
@@ -157,16 +156,8 @@ const AppContent = () => {
 
                 {/* User's Execution History */}
                 <ExecutionHistory />
-              </>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">
-                  {status === "connecting"
-                    ? "Connecting to Farcaster..."
-                    : "Connect your Farcaster wallet to start donating"}
-                </p>
-              </div>
-            )}
+           
+           
           </TabsContent>
 
           <TabsContent value="community" className="space-y-6">
