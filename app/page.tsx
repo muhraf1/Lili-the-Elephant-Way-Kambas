@@ -79,7 +79,7 @@ const AppContent = () => {
   }
 
   const getStepStatusForUI = (stepNumber: number) => {
-    if (!address) return "disabled"
+    // if (!address) return "disabled"
 
     const stepStatus = getStepStatus(stepNumber)
     console.log(`[v0] Step ${stepNumber} status:`, stepStatus)
