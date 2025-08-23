@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback, useEffect } from "react"
+import { useState, useCallback } from "react"
 import { Input } from "./ui/input"
 import { Button } from "./ui/button"
 import { Label } from "./ui/label"
@@ -8,7 +8,6 @@ import { StepCard } from "./StepCard"
 import { useTrailData } from "@/hooks/useTrailData"
 import { useTrailTransaction } from "@/hooks/useTrailTransaction"
 import { TrailUtils } from "@/lib/trail-api"
-import { useAccount } from "wagmi"
 
 interface ApproveStepProps {
   status: "pending" | "active" | "completed" | "disabled"
@@ -28,19 +27,11 @@ export function ApproveStep({
   onTransactionSuccess,
 }: ApproveStepProps) {
   const [amount, setAmount] = useState(defaultAmount || "")
-  const { userData, loading, refetchData } = useTrailData()
+  const { userData, loading } = useTrailData()
   const { executeStep, isProcessing, error } = useTrailTransaction(onTransactionSuccess)
-  const { address } = useAccount()
 
   // Debug: Log userData to inspect balance
   console.log("[ApproveStep] userData:", userData, "loading:", loading)
-
-  // Fetch wallet balance when component mounts or address changes
-  useEffect(() => {
-    if (address) {
-      refetchData()
-    }
-  }, [address, refetchData])
 
   const handleAmountChange = useCallback((value: string) => {
     // Allow empty input, integers, or decimals with up to 6 digits
@@ -61,24 +52,14 @@ export function ApproveStep({
     }
   }
 
-  // Format USDC balance for display
-  const formatUSDCBalance = () => {
-    if (!address) return "0.000000"
-    if (loading) return "Loading..."
-    
-    if (!userData?.formattedUSDCBalance) return "0.000000"
-    
-    // Convert to proper decimal format
-    const balanceNum = Number(userData.formattedUSDCBalance) / 1e6
-    return balanceNum.toFixed(6)
-  }
-
-  // Get the formatted balance
-  const maxBalance = formatUSDCBalance()
-  const parsedMaxBalance = loading ? 0 : Number.parseFloat(maxBalance === "Loading..." ? "0" : maxBalance)
+  // Convert raw USDC balance (base units) to decimal form
+  const maxBalance = userData?.formattedUSDCBalance && !isNaN(Number(userData.formattedUSDCBalance))
+    ? (Number(userData.formattedUSDCBalance) / 1e6).toFixed(6)
+    : "0.000000"
 
   // Validate amount
   const parsedAmount = amount ? Number.parseFloat(amount) : 0
+  const parsedMaxBalance = Number.parseFloat(maxBalance)
   const isValidAmount =
     amount !== "" &&
     !isNaN(parsedAmount) &&
@@ -128,7 +109,7 @@ export function ApproveStep({
             className="mt-1"
           />
           <p className="text-sm font-semibold text-foreground mt-2">
-            Wallet Balance: {maxBalance} USDC
+            Wallet Balance: {loading ? "Loading..." : userData?.formattedUSDCBalance ? `${maxBalance} USDC` : "0.000000 USDC"}
           </p>
         </div>
 
@@ -138,11 +119,11 @@ export function ApproveStep({
 
         <Button
           onClick={handleSubmit}
-          disabled={!isValidAmount || status === "disabled" || isProcessing || !address}
+          disabled={!isValidAmount || status === "disabled" || isProcessing}
           className="w-full"
           size="lg"
         >
-          {!address ? "Connect Wallet" : isProcessing ? "Approving..." : status === "completed" ? "Re-approve USDC" : "Approve USDC"}
+          {isProcessing ? "Approving..." : status === "completed" ? "Re-approve USDC" : "Approve USDC"}
         </Button>
 
         <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">
