@@ -54,7 +54,7 @@ export function ApproveStep({
 
   // Convert raw USDC balance (base units) to decimal form
   const maxBalance = userData?.formattedUSDCBalance && !isNaN(Number(userData.formattedUSDCBalance))
-    ? (Number(userData.formattedUSDCBalance) / 1e6).toFixed(4)
+    ? (Number(userData.formattedUSDCBalance) / 1e6).toFixed(6)
     : "0.0000"
 
 
