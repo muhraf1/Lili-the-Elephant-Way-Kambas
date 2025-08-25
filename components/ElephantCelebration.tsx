@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useEffect } from "react"
 
 interface ElephantCelebrationProps {
   isVisible: boolean
@@ -9,144 +8,82 @@ interface ElephantCelebrationProps {
 }
 
 export function ElephantCelebration({ isVisible, onComplete }: ElephantCelebrationProps) {
-  const [audioLoaded, setAudioLoaded] = useState(false)
-
   useEffect(() => {
-    if (isVisible) {
-      // Play elephant sound effect
-      const audio = new Audio("/elephant-sound.mp3")
-      audio.volume = 0.7
+    if (!isVisible) return
 
-      audio.addEventListener("canplaythrough", () => setAudioLoaded(true))
-      audio.addEventListener("ended", () => {
-        // Animation completes when sound ends
-        setTimeout(onComplete, 1000)
-      })
+    const audio = new Audio()
+    audio.volume = 0.7
 
-      if (audioLoaded) {
-        audio.play().catch(console.error)
-      } else {
-        audio.load()
-        audio.play().catch(console.error)
-      }
+    let completed = false
 
-      // Fallback to complete animation if no sound
-      const fallbackTimer = setTimeout(onComplete, 4000)
-
-      return () => {
-        clearTimeout(fallbackTimer)
-        audio.pause()
-        audio.currentTime = 0
-      }
+    const complete = () => {
+      if (completed) return
+      completed = true
+      setTimeout(onComplete, 1000)
     }
-  }, [isVisible, audioLoaded, onComplete])
+
+    const tryPlay = async (srcs: string[]) => {
+      for (const src of srcs) {
+        try {
+          audio.src = src
+          // Some browsers need load before play when swapping src
+          audio.load()
+          await audio.play()
+          return true
+        } catch (err) {
+          // Try next source
+        }
+      }
+      return false
+    }
+
+    audio.addEventListener("ended", complete)
+
+    // Attempt MP3 first, then fall back to the existing MP4 asset in public/
+    // After a donation, user interaction should have occurred, so autoplay should be allowed.
+    void tryPlay(["/elephant-sound.mp3", "/ELEPHANT - Sound Effect.mp4"]).then((played) => {
+      if (!played) {
+        // If neither source could play, still show the celebration briefly
+        setTimeout(complete, 2000)
+      }
+    })
+
+    // Safety timeout to avoid hanging if no events fire
+    const safetyTimeout = setTimeout(complete, 8000)
+
+    return () => {
+      clearTimeout(safetyTimeout)
+      audio.pause()
+      audio.src = ""
+    }
+  }, [isVisible, onComplete])
 
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-        >
-          <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.5, opacity: 0 }}
-            transition={{ type: "spring", duration: 0.6 }}
-            className="relative"
-          >
-            {/* Elephant Head Animation */}
-            <motion.div
-              animate={{
-                y: [0, -20, 0],
-                rotate: [0, 5, -5, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "easeInOut",
-              }}
-              className="text-8xl md:text-9xl"
-            >
-              🐘
-            </motion.div>
+    isVisible ? (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="relative">
+          <div className="text-8xl md:text-9xl animate-bounce">
+            🐘
+          </div>
 
-            {/* Celebration Particles */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="absolute -top-4 -left-4 text-4xl"
-            >
-              <motion.span
-                animate={{
-                  rotate: 360,
-                  scale: [1, 1.2, 1],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Number.POSITIVE_INFINITY,
-                }}
-              >
-                ✨
-              </motion.span>
-            </motion.div>
+          <div className="absolute -top-4 -left-4 text-4xl animate-spin-slow">
+            <span className="inline-block animate-pulse">✨</span>
+          </div>
 
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className="absolute -top-2 -right-6 text-3xl"
-            >
-              <motion.span
-                animate={{
-                  rotate: -360,
-                  scale: [1, 1.3, 1],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Number.POSITIVE_INFINITY,
-                }}
-              >
-                🎉
-              </motion.span>
-            </motion.div>
+          <div className="absolute -top-2 -right-6 text-3xl animate-spin-slow reverse">
+            <span className="inline-block animate-pulse">🎉</span>
+          </div>
 
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.7, duration: 0.5 }}
-              className="absolute -bottom-2 -left-6 text-3xl"
-            >
-              <motion.span
-                animate={{
-                  rotate: 360,
-                  scale: [1, 1.1, 1],
-                }}
-                transition={{
-                  duration: 2.5,
-                  repeat: Number.POSITIVE_INFINITY,
-                }}
-              >
-                💚
-              </motion.span>
-            </motion.div>
-          </motion.div>
+          <div className="absolute -bottom-2 -left-6 text-3xl animate-spin-slower">
+            <span className="inline-block animate-pulse">💚</span>
+          </div>
+        </div>
 
-          {/* Thank You Message */}
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="absolute bottom-1/3 text-center"
-          >
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Thank You! 🙏</h2>
-            <p className="text-lg text-white/90">Your donation helps save elephants at Way Kambas!</p>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        <div className="absolute bottom-1/3 text-center animate-in slide-in-from-bottom-4 fade-in duration-500 delay-200">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Thank You! 🙏</h2>
+          <p className="text-lg text-white/90">Your donation helps save elephants at Way Kambas!</p>
+        </div>
+      </div>
+    ) : null
   )
 }
