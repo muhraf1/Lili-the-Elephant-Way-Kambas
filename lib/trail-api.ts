@@ -56,14 +56,33 @@ export class TrailAPI {
         body: body ? JSON.stringify(body) : undefined,
       })
 
-      const responseData = await response.json()
+      const contentType = response.headers.get("content-type") || ""
+      let responseData: any
+      try {
+        if (contentType.includes("application/json")) {
+          responseData = await response.json()
+        } else {
+          const text = await response.text()
+          // Attempt to parse JSON fallback
+          try {
+            responseData = JSON.parse(text)
+          } catch {
+            responseData = { message: text }
+          }
+        }
+      } catch (parseErr) {
+        const text = await response.text().catch(() => "")
+        responseData = { message: text || "Failed to parse response" }
+      }
+
       console.log("[v0] Trail API response:", responseData)
 
       if (!response.ok) {
-        throw new Error(`Trail API error: ${response.status} - ${JSON.stringify(responseData)}`)
+        const message = typeof responseData === "object" ? JSON.stringify(responseData) : String(responseData)
+        throw new Error(`Trail API error: ${response.status} - ${message}`)
       }
 
-      return responseData
+      return responseData as T
     } catch (error) {
       console.error("[v0] Trail API request failed:", error)
       throw error

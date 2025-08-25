@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { useAccount } from "wagmi"
-import { TrailReadAPI, TrailUtils } from "@/lib/trail-api"
+import { TrailReadAPI, TrailUtils, TrailAPI } from "@/lib/trail-api"
+import { useCommunityData } from "./useCommunityData"
 
 export interface CrowdfundData {
   goal: string
@@ -138,10 +139,14 @@ export function useTrailData() {
 
   const fetchDonorsCount = async () => {
     try {
-      console.log("[v0] Fetching donors count...")
-      const response: any = await TrailReadAPI.getDonorsCount()
-      const count = extractOutputValue(response.outputs)
-      console.log("[v0] Donors count response:", count)
+      console.log("[v0] Fetching donors count via executions API...")
+      const execs: any = await TrailAPI.queryExecutions({ walletAddresses: [] })
+      const uniqueWallets = new Set<string>()
+      for (const exec of execs.walletExecutions || []) {
+        if (exec.walletAddress) uniqueWallets.add(exec.walletAddress.toLowerCase())
+      }
+      const count = String(uniqueWallets.size)
+      console.log("[v0] Donors count derived:", count)
       setDonorsCount(count)
     } catch (err) {
       console.error("[v0] Failed to fetch donors count:", err)
