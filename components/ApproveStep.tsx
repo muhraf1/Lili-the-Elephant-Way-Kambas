@@ -57,6 +57,7 @@ export function ApproveStep({
     ? (Number(userData.formattedUSDCBalance) / 1e6).toFixed(6)
     : "0.000000"
 
+
   // Validate amount
   const parsedAmount = amount ? Number.parseFloat(amount) : 0
   const parsedMaxBalance = Number.parseFloat(maxBalance)
@@ -86,6 +87,7 @@ export function ApproveStep({
     return null
   }
 
+
   return (
     <StepCard
       stepNumber={1}
@@ -105,7 +107,7 @@ export function ApproveStep({
             placeholder="0.00"
             value={amount}
             onChange={(e) => handleAmountChange(e.target.value)}
-            disabled={status === "disabled" || isProcessing}
+            // disabled={status === "disabled" || isProcessing}
             className="mt-1"
           />
           <p className="text-sm font-semibold text-foreground mt-2">
