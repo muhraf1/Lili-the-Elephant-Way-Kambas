@@ -73,7 +73,7 @@ export const metadata: Metadata = {
       action: {
         type: "launch_miniapp",
         name: "Elephant Crowdfund",
-        url: getBaseUrl() || "https://your-app-url.vercel.app",
+        url: getBaseUrl() || "v0-elephant-crowdfund-app.vercel.app",
         splashImageUrl: toAbsoluteUrl("/api/splash-image"),
         splashBackgroundColor: "#2D5A27",
       },
