@@ -34,8 +34,8 @@ export function ApproveStep({
   console.log("[ApproveStep] userData:", userData, "loading:", loading)
 
   const handleAmountChange = useCallback((value: string) => {
-    // Allow empty input, integers, or decimals with up to 6 digits
-    if (value === "" || /^\d*(\.\d{0,6})?$/.test(value)) {
+    // Allow empty input, integers, or decimals with up to 4 digits
+    if (value === "" || /^\d*(\.\d{0,4})?$/.test(value)) {
       setAmount(value)
       onAmountChange?.(value)
     }
@@ -54,7 +54,7 @@ export function ApproveStep({
 
   // Convert raw USDC balance (base units) to decimal form
   const maxBalance = userData?.formattedUSDCBalance && !isNaN(Number(userData.formattedUSDCBalance))
-    ? (Number(userData.formattedUSDCBalance) / 1e6).toFixed(6)
+    ? (Number(userData.formattedUSDCBalance) / 1e6).toFixed(4)
     : "0.0000"
 
 
@@ -66,22 +66,12 @@ export function ApproveStep({
     !isNaN(parsedAmount) &&
     parsedAmount > 0.00 &&
     parsedAmount <= parsedMaxBalance &&
-    /^\d*(\.\d{1,6})?$/.test(amount)
-
-  // Debug: Log validation details
-  console.log("[ApproveStep] Validation:", {
-    amount,
-    parsedAmount,
-    maxBalance,
-    parsedMaxBalance,
-    rawBalance: userData?.formattedUSDCBalance,
-    isValidAmount,
-  })
+    /^\d*(\.\d{0,4})?$/.test(amount)
 
   // Error message for invalid amount
   const getErrorMessage = () => {
     if (amount === "") return null
-    if (!/^\d*(\.\d{1,6})?$/.test(amount)) return "Please enter a valid number (up to 6 decimals)"
+    if (!/^\d*(\.\d{0,4})?$/.test(amount)) return "Please enter a valid number (up to 4 decimals)"
     if (parsedAmount <= 0) return "Amount must be greater than 0"
     if (parsedAmount > parsedMaxBalance) return `Amount exceeds your USDC balance (${maxBalance} USDC)`
     return null
