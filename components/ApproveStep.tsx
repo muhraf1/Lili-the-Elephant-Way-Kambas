@@ -103,7 +103,10 @@ export function ApproveStep({
             className="mt-1"
           />
           <p className="text-sm font-semibold text-foreground mt-2">
-            Wallet Balance: {loading ? "Loading..." : userData?.formattedUSDCBalance ? `${maxBalance} USDC` : "Not Found USDC"}
+            Wallet Balance: {loading ? "Loading..." : 
+              userData?.formattedUSDCBalance ? 
+                `${(Number(userData.formattedUSDCBalance) / 1e6).toFixed(4)} USDC` : 
+                "0.0000 USDC"}
           </p>
         </div>
 
