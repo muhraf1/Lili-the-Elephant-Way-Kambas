@@ -21,13 +21,13 @@ export const HEADERS = {
 export const STEPS = {
   APPROVE: {
     stepNumber: 1,
-    primaryNodeId: "0198d5f9-841e-7841-8173-3a47159517a7",
+    primaryNodeId: "0198e00e-de67-7f26-b5ac-7d9173e325a7",
     title: "Approve USDC",
     description: "Allow the crowdfund contract to spend your USDC",
   },
   DONATE: {
     stepNumber: 2,
-    primaryNodeId: "0198d5f9-841e-7841-8173-3a45cb035b81",
+    primaryNodeId: "0198e00e-de66-743a-81f7-c994b8528f12",
     title: "Donate to Crowdfund",
     description: "Make your donation to help save elephants",
   },
@@ -41,10 +41,10 @@ export const STEPS = {
 
 // Read node IDs sourced from the Trail guidebook for this version
 export const READ_NODES = {
-  USDC_BALANCE: "0198d5f9-841e-7841-8173-3a46904055f5",
+  USDC_BALANCE: "0198e00e-de67-7f26-b5ac-7d9051b7437e",
   USER_DONATION: "0198e00e-de66-743a-81f7-c993b215c046",
   CROWDFUND_DETAILS: "0198e00e-de67-7f26-b5ac-7d92f89ec3c6",
-  DONORS_COUNT: "0198d5f9-841f-7678-92f4-75b2ccf054a4",
+  DONORS_COUNT: "0198e00e-de67-7f26-b5ac-7d93a18a4b6e",
 } as const
 
 export const TOKEN_CONFIG = {

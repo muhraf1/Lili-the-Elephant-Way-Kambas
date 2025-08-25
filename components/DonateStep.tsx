@@ -57,9 +57,9 @@ export function DonateStep({
     if (!amount || Number.parseFloat(amount) < MIN_DONATION_AMOUNT) return
 
     try {
-      // Convert to raw amount (multiply by 10^6 for USDC)
-      const rawAmount = TrailUtils.parseTokenAmount(amount, 6)
-      await executeStep(2, rawAmount)
+      // Send decimal string; API applies 10^6 per alreadyAppliedDecimals
+      const decimalAmount = amount.toString()
+      await executeStep(2, decimalAmount)
     } catch (err) {
       console.error("[v0] Donate step failed:", err)
     }
