@@ -122,7 +122,7 @@ export class TrailInputBuilder {
   static buildApproveInputs(amount: string): UserInputs {
     return {
       [STEPS.APPROVE.primaryNodeId]: {
-        "inputs.value": {
+        "inputs.arg_0": {
           value: amount, // Amount already has 6 decimals applied per alreadyAppliedDecimals
         },
       },
@@ -133,7 +133,7 @@ export class TrailInputBuilder {
   static buildDonateInputs(amount: string): UserInputs {
     return {
       [STEPS.DONATE.primaryNodeId]: {
-        "inputs.amount": {
+        "inputs.arg_0": {
           value: amount, // Amount already has 6 decimals applied per alreadyAppliedDecimals
         },
       },

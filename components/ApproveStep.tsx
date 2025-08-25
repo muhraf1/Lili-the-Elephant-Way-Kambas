@@ -46,10 +46,10 @@ export function ApproveStep({
     if (!amount || Number.parseFloat(amount) <= 0) return
 
     try {
-      // Send formatted USDC value (e.g., "0.01") - backend handles decimals conversion
-      const formattedAmount = amount.toString()
-      console.log(`[ApproveStep] Sending formatted USDC amount: ${formattedAmount} (backend handles decimal conversion)`)
-      await executeStep(1, formattedAmount)
+      // Convert to raw amount (multiply by 10^6 for USDC)
+      const rawAmount = TrailUtils.parseTokenAmount(amount, 6)
+      console.log(`[ApproveStep] Sending raw USDC amount: ${rawAmount}`)
+      await executeStep(1, rawAmount)
     } catch (err) {
       console.error("[ApproveStep] Approve step failed:", err)
     }
