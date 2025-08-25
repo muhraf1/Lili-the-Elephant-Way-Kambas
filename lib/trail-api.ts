@@ -1,4 +1,4 @@
-import { TRAIL_CONFIG, HEADERS } from "./trail-constants"
+import { TRAIL_CONFIG, HEADERS, READ_NODES, STEPS } from "./trail-constants"
 
 // Types based on the trail API documentation
 export interface UserInputs {
@@ -100,7 +100,7 @@ export class TrailInputBuilder {
   // Build user inputs for Step 1 (Approve USDC)
   static buildApproveInputs(amount: string): UserInputs {
     return {
-      "0198d5f9-841e-7841-8173-3a47159517a7": {
+      [STEPS.APPROVE.primaryNodeId]: {
         "inputs.value": {
           value: amount, // Amount already has 6 decimals applied per alreadyAppliedDecimals
         },
@@ -111,7 +111,7 @@ export class TrailInputBuilder {
   // Build user inputs for Step 2 (Donate)
   static buildDonateInputs(amount: string): UserInputs {
     return {
-      "0198d5f9-841e-7841-8173-3a45cb035b81": {
+      [STEPS.DONATE.primaryNodeId]: {
         "inputs.amount": {
           value: amount, // Amount already has 6 decimals applied per alreadyAppliedDecimals
         },
@@ -139,52 +139,52 @@ export class TrailReadAPI {
   static async getUserUSDCBalance(walletAddress: string, executionId?: string) {
     const request: ReadRequest = {
       walletAddress,
-      userInputs: TrailInputBuilder.buildReadInputs("0198d5f9-841e-7841-8173-3a46904055f5", {
+      userInputs: TrailInputBuilder.buildReadInputs(READ_NODES.USDC_BALANCE, {
         "inputs.token": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", // USDC contract address on Base
       }),
       execution: executionId ? { type: "manual", executionId } : { type: "latest" },
     }
 
-    return TrailAPI.getReadData("0198d5f9-841e-7841-8173-3a46904055f5", request)
+    return TrailAPI.getReadData(READ_NODES.USDC_BALANCE, request)
   }
 
   // Get user's donation amount for the crowdfund
   static async getUserDonation(walletAddress: string, executionId?: string) {
     const request: ReadRequest = {
       walletAddress,
-      userInputs: TrailInputBuilder.buildReadInputs("0198d5f9-841d-7242-9672-93e0b12d5186", {
+      userInputs: TrailInputBuilder.buildReadInputs(READ_NODES.USER_DONATION, {
         "inputs.arg_0": TRAIL_CONFIG.crowdfundId,
       }),
       execution: executionId ? { type: "manual", executionId } : { type: "latest" },
     }
 
-    return TrailAPI.getReadData("0198d5f9-841d-7242-9672-93e0b12d5186", request)
+    return TrailAPI.getReadData(READ_NODES.USER_DONATION, request)
   }
 
   // Get crowdfund details
   static async getCrowdfundDetails(walletAddress = "0x0000000000000000000000000000000000000000", executionId?: string) {
     const request: ReadRequest = {
       walletAddress,
-      userInputs: TrailInputBuilder.buildReadInputs("0198d5f9-841f-7678-92f4-75b1f7f00d19", {
+      userInputs: TrailInputBuilder.buildReadInputs(READ_NODES.CROWDFUND_DETAILS, {
         "inputs.arg_0": TRAIL_CONFIG.crowdfundId,
       }),
       execution: executionId ? { type: "manual", executionId } : { type: "latest" },
     }
 
-    return TrailAPI.getReadData("0198d5f9-841f-7678-92f4-75b1f7f00d19", request)
+    return TrailAPI.getReadData(READ_NODES.CROWDFUND_DETAILS, request)
   }
 
   // Get total donors count
   static async getDonorsCount(walletAddress = "0x0000000000000000000000000000000000000000", executionId?: string) {
     const request: ReadRequest = {
       walletAddress,
-      userInputs: TrailInputBuilder.buildReadInputs("0198d5f9-841f-7678-92f4-75b2ccf054a4", {
+      userInputs: TrailInputBuilder.buildReadInputs(READ_NODES.DONORS_COUNT, {
         "inputs.crowdfundId": TRAIL_CONFIG.crowdfundId,
       }),
       execution: executionId ? { type: "manual", executionId } : { type: "latest" },
     }
 
-    return TrailAPI.getReadData("0198d5f9-841f-7678-92f4-75b2ccf054a4", request)
+    return TrailAPI.getReadData(READ_NODES.DONORS_COUNT, request)
   }
 }
 
@@ -197,7 +197,7 @@ export class TrailUtils {
     const wholePart = amount / divisor
     const fractionalPart = amount % divisor
 
-    if (fractionalPart === 0n) {
+    if (fractionalPart === BigInt(0)) {
       return `${wholePart}.${"0".repeat(displayDecimals)}`
     }
 

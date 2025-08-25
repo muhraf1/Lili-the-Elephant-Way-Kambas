@@ -4,6 +4,7 @@ import { Button } from "./ui/button"
 import { StepCard } from "./StepCard"
 import { useTrailData } from "@/hooks/useTrailData"
 import { useTrailTransaction } from "@/hooks/useTrailTransaction"
+import { STEPS } from "@/lib/trail-constants"
 
 interface RefundStepProps {
   status?: "pending" | "active" | "completed" | "disabled"
@@ -46,8 +47,8 @@ export function RefundStep({ status, isCollapsed, onToggleCollapse, onTransactio
   return (
     <StepCard
       stepNumber={3}
-      title="Claim Refund"
-      description="Get your money back if the goal was not reached"
+      title={STEPS.REFUND.title}
+      description={STEPS.REFUND.description}
       status={undefined}
       isCollapsed={isCollapsed}
       onToggleCollapse={onToggleCollapse}

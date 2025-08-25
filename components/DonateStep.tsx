@@ -9,6 +9,7 @@ import { ElephantCelebration } from "./ElephantCelebration"
 import { useTrailData } from "@/hooks/useTrailData"
 import { useTrailTransaction } from "@/hooks/useTrailTransaction"
 import { TrailUtils } from "@/lib/trail-api"
+import { STEPS } from "@/lib/trail-constants"
 import { useAccount } from "wagmi"
 
 interface DonateStepProps {
@@ -93,8 +94,8 @@ export function DonateStep({
     <>
       <StepCard
         stepNumber={2}
-        title="Donate to Crowdfund"
-        description="Make your donation to help save elephants"
+        title={STEPS.DONATE.title}
+        description={STEPS.DONATE.description}
         status={undefined}
         isCollapsed={isCollapsed}
         onToggleCollapse={onToggleCollapse}

@@ -39,6 +39,14 @@ export const STEPS = {
   },
 } as const
 
+// Read node IDs sourced from the Trail guidebook for this version
+export const READ_NODES = {
+  USDC_BALANCE: "0198d5f9-841e-7841-8173-3a46904055f5",
+  USER_DONATION: "0198d5f9-841d-7242-9672-93e0b12d5186",
+  CROWDFUND_DETAILS: "0198d5f9-841f-7678-92f4-75b1f7f00d19",
+  DONORS_COUNT: "0198d5f9-841f-7678-92f4-75b2ccf054a4",
+} as const
+
 export const TOKEN_CONFIG = {
   USDC: {
     address: "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",

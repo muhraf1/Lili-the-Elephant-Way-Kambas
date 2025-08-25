@@ -38,7 +38,7 @@ export function useTrailData() {
   const fetchCrowdfundData = async () => {
     try {
       console.log("[v0] Fetching crowdfund data...")
-      const response = await TrailReadAPI.getCrowdfundDetails()
+      const response: any = await TrailReadAPI.getCrowdfundDetails()
 
       console.log("[v0] Crowdfund API response:", response)
 
@@ -94,12 +94,12 @@ export function useTrailData() {
       console.log("[v0] Fetching user data for:", address)
 
       // Fetch user's USDC balance
-      const balanceResponse = await TrailReadAPI.getUserUSDCBalance(address)
+      const balanceResponse: any = await TrailReadAPI.getUserUSDCBalance(address)
       const balance = balanceResponse.outputs?.[0]?.value || "0"
       console.log("[v0] User USDC balance raw:", balance)
 
       // Fetch user's donation amount
-      const donationResponse = await TrailReadAPI.getUserDonation(address)
+      const donationResponse: any = await TrailReadAPI.getUserDonation(address)
       const donationAmount = donationResponse.outputs?.[0]?.value || "0"
       console.log("[v0] User donation amount:", donationAmount)
 
@@ -111,7 +111,7 @@ export function useTrailData() {
         donationAmount,
         formattedUSDCBalance: formattedBalance,
         formattedDonationAmount: TrailUtils.formatTokenAmount(donationAmount),
-        hasDonated: BigInt(donationAmount) > 0n,
+        hasDonated: BigInt(donationAmount) > BigInt(0),
       })
     } catch (err) {
       console.error("[v0] Failed to fetch user data:", err)
@@ -122,7 +122,7 @@ export function useTrailData() {
   const fetchDonorsCount = async () => {
     try {
       console.log("[v0] Fetching donors count...")
-      const response = await TrailReadAPI.getDonorsCount()
+      const response: any = await TrailReadAPI.getDonorsCount()
       const count = response.outputs?.[0]?.value || "0"
       console.log("[v0] Donors count response:", count)
       setDonorsCount(count)
