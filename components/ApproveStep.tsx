@@ -34,8 +34,8 @@ export function ApproveStep({
   console.log("[ApproveStep] userData:", userData, "loading:", loading)
 
   const handleAmountChange = useCallback((value: string) => {
-    // Allow empty input, integers, or decimals with up to 6 digits (USDC has 6 decimals)
-    if (value === "" || /^\d*(\.\d{0,6})?$/.test(value)) {
+    // Allow only whole numbers since backend handles decimals
+    if (value === "" || /^\d*$/.test(value)) {
       setAmount(value)
       onAmountChange?.(value)
     }
@@ -78,14 +78,14 @@ export function ApproveStep({
     !isNaN(parsedAmount) &&
     parsedAmount > 0 &&
     parsedAmount <= parsedMaxBalance &&
-    /^\d*(\.\d{0,6})?$/.test(amount)
+    /^\d*$/.test(amount)
 
   // Error message for invalid amount
   const getErrorMessage = () => {
     if (amount === "") return null
-    if (!/^\d*(\.\d{0,6})?$/.test(amount)) return "Please enter a valid number (up to 6 decimals)"
+    if (!/^\d*$/.test(amount)) return "Please enter a whole number (backend handles decimals)"
     if (parsedAmount <= 0) return "Amount must be greater than 0"
-    if (parsedAmount > parsedMaxBalance) return `Amount exceeds your USDC balance (${maxBalance} USDC)`
+    if (parsedAmount > parsedMaxBalance) return `Amount exceeds your balance (${maxBalance} raw units)`
     return null
   }
 
@@ -106,12 +106,12 @@ export function ApproveStep({
     >
       <div className="space-y-4">
         <div>
-          <Label htmlFor="approve-amount">Amount to approve (USDC)</Label>
+          <Label htmlFor="approve-amount">Amount to approve (Raw USDC Units)</Label>
           <div className="relative mt-1">
             <Input
               id="approve-amount"
               type="text"
-              placeholder="0.000000"
+              placeholder="1000000"
               value={amount}
               onChange={(e) => handleAmountChange(e.target.value)}
               disabled={status === "disabled" || isProcessing}
@@ -129,11 +129,11 @@ export function ApproveStep({
           </div>
           <div className="flex justify-between items-center mt-2">
             <p className="text-sm font-semibold text-foreground">
-              Wallet Balance: {loading ? "Loading..." : `${maxBalance} USDC`}
+              Wallet Balance: {loading ? "Loading..." : `${maxBalance} raw units`}
             </p>
             {amount && (
               <p className="text-xs text-muted-foreground">
-                Raw units: {Math.floor(Number(amount || 0) * 1e6)}
+                ≈ {(Number(amount || 0) / 1e6).toFixed(6)} USDC
               </p>
             )}
           </div>
@@ -154,8 +154,8 @@ export function ApproveStep({
 
         <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">
           <p className="text-sm text-blue-700 dark:text-blue-300">
+            Enter raw USDC units (1,000,000 = 1 USDC). The smart contract handles decimal conversion.
             This allows the crowdfund contract to transfer USDC from your wallet when you donate.
-            You can approve any amount up to your balance.
           </p>
         </div>
       </div>
