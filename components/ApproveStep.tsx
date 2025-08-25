@@ -45,9 +45,8 @@ export function ApproveStep({
     if (!amount || Number.parseFloat(amount) <= 0) return
 
     try {
-      // Fix: Use the amount directly without additional parsing
-      // The TrailUtils.parseTokenAmount is likely multiplying by 1e6 internally
-      const rawAmount = amount
+      // Use TrailUtils.parseTokenAmount to convert the amount to raw token units
+      const rawAmount = TrailUtils.parseTokenAmount(amount, 6)
       await executeStep(1, rawAmount)
     } catch (err) {
       console.error("[v0] Approve step failed:", err)
@@ -104,8 +103,8 @@ export function ApproveStep({
           />
           <p className="text-sm font-semibold text-foreground mt-2">
             Wallet Balance: {loading ? "Loading..." : 
-              userData?.formattedUSDCBalance ? 
-                `${(Number(userData.formattedUSDCBalance) / 1e6).toFixed(4)} USDC` : 
+              userData?.usdcBalance ? 
+                `${(Number(userData.usdcBalance) / 1e6).toFixed(4)} USDC` : 
                 "0.0000 USDC"}
           </p>
         </div>
