@@ -121,7 +121,7 @@ export function ApproveStep({
 
         <Button
           onClick={handleSubmit}
-          disabled={!isValidAmount || status === "disabled" || isProcessing}
+          // disabled={!isValidAmount || status === "disabled" || isProcessing}
           className="w-full"
           size="lg"
         >
