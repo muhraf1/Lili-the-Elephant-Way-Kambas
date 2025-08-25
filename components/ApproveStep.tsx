@@ -45,7 +45,9 @@ export function ApproveStep({
     if (!amount || Number.parseFloat(amount) <= 0) return
 
     try {
-      const rawAmount = TrailUtils.parseTokenAmount(amount, 6)
+      // Fix: Use the amount directly without additional parsing
+      // The TrailUtils.parseTokenAmount is likely multiplying by 1e6 internally
+      const rawAmount = amount
       await executeStep(1, rawAmount)
     } catch (err) {
       console.error("[v0] Approve step failed:", err)

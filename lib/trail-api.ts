@@ -212,7 +212,7 @@ export class TrailUtils {
   static parseTokenAmount(amount: string, decimals = 6): string {
     const [wholePart, fractionalPart = ""] = amount.split(".")
     const paddedFractional = fractionalPart.padEnd(decimals, "0").slice(0, decimals)
-    const rawAmount = BigInt(wholePart + paddedFractional)
+    const rawAmount = BigInt(wholePart) * BigInt(10 ** decimals) + BigInt(paddedFractional)
     return rawAmount.toString()
   }
 
