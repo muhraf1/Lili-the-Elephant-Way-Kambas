@@ -130,7 +130,6 @@ const AppContent = () => {
                 {/* Step Components */}
                 <div className="space-y-4">
                   <ApproveStep
-                    status={getStepStatusForUI(1)}
                     isCollapsed={collapsedSteps[1]}
                     onToggleCollapse={() => toggleStepCollapse(1)}
                     onAmountChange={setApprovedAmount}
@@ -139,19 +138,13 @@ const AppContent = () => {
                   />
 
                   <DonateStep
-                    status={getStepStatusForUI(2)}
                     isCollapsed={collapsedSteps[2]}
                     onToggleCollapse={() => toggleStepCollapse(2)}
                     approvedAmount={approvedAmount}
                     onTransactionSuccess={handleTransactionSuccess}
                   />
 
-                  <RefundStep
-                    status={getStepStatusForUI(3)}
-                    isCollapsed={collapsedSteps[3]}
-                    onToggleCollapse={() => toggleStepCollapse(3)}
-                    onTransactionSuccess={handleTransactionSuccess}
-                  />
+                  {/* Refund step hidden per request */}
                 </div>
 
                 {/* User's Execution History */}

@@ -12,7 +12,7 @@ import { TrailUtils } from "@/lib/trail-api"
 // Trail API documentation: https://trails-api.herd.eco/v1/trails/0198e00e-de57-7daf-81b9-133db5520147/versions/0198e00e-de63-7f79-be98-81b08e0a355c/guidebook.txt?trailAppId=0198a42e-6183-745a-abca-cb89fd695d50
 
 interface ApproveStepProps {
-  status: "pending" | "active" | "completed" | "disabled"
+  status?: "pending" | "active" | "completed" | "disabled"
   isCollapsed?: boolean
   onToggleCollapse?: () => void
   onAmountChange?: (amount: string) => void
@@ -100,7 +100,7 @@ export function ApproveStep({
       stepNumber={1}
       title="Approve USDC"
       description="Allow the crowdfund contract to spend your USDC"
-      status={status}
+      status={undefined}
       isCollapsed={isCollapsed}
       onToggleCollapse={onToggleCollapse}
       error={error?.message}
@@ -115,7 +115,7 @@ export function ApproveStep({
               placeholder="0.01"
               value={amount}
               onChange={(e) => handleAmountChange(e.target.value)}
-              disabled={status === "disabled" || isProcessing}
+              disabled={isProcessing}
             />
             <Button
               type="button"
@@ -123,7 +123,7 @@ export function ApproveStep({
               size="sm"
               className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 px-2 text-xs"
               onClick={setMaxAmount}
-              disabled={status === "disabled" || isProcessing}
+              disabled={isProcessing}
             >
               MAX
             </Button>
@@ -146,11 +146,11 @@ export function ApproveStep({
 
         <Button
           onClick={handleSubmit}
-          disabled={!isValidAmount || status === "disabled" || isProcessing}
+          disabled={!isValidAmount || isProcessing}
           className="w-full"
           size="lg"
         >
-          {isProcessing ? "Approving..." : status === "completed" ? "Re-approve USDC" : "Approve USDC"}
+          {isProcessing ? "Approving..." : "Approve USDC"}
         </Button>
 
         <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">

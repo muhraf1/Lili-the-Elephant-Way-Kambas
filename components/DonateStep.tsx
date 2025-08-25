@@ -12,7 +12,7 @@ import { TrailUtils } from "@/lib/trail-api"
 import { useAccount } from "wagmi"
 
 interface DonateStepProps {
-  status: "pending" | "active" | "completed" | "disabled"
+  status?: "pending" | "active" | "completed" | "disabled"
   isCollapsed?: boolean
   onToggleCollapse?: () => void
   approvedAmount?: string
@@ -95,7 +95,7 @@ export function DonateStep({
         stepNumber={2}
         title="Donate to Crowdfund"
         description="Make your donation to help save elephants"
-        status={status}
+        status={undefined}
         isCollapsed={isCollapsed}
         onToggleCollapse={onToggleCollapse}
         error={error?.message}
@@ -117,7 +117,7 @@ export function DonateStep({
               placeholder={`${MIN_DONATION_AMOUNT} minimum`}
               value={amount}
               onChange={(e) => handleAmountChange(e.target.value)}
-              disabled={status === "disabled" || isProcessing || isCrowdfundEnded}
+              disabled={isProcessing || isCrowdfundEnded}
               className="mt-1"
             />
             <p className="text-xs text-muted-foreground mt-1">{getBalanceText()}</p>
@@ -141,11 +141,11 @@ export function DonateStep({
 
           <Button
             onClick={handleSubmit}
-            disabled={!isValidAmount || status === "disabled" || isProcessing || isCrowdfundEnded}
+            disabled={!isValidAmount || isProcessing || isCrowdfundEnded}
             className="w-full"
             size="lg"
           >
-            {isProcessing ? "Donating..." : status === "completed" ? "Donate More" : "Donate to Save Elephants"}
+            {isProcessing ? "Donating..." : "Donate to Save Elephants"}
           </Button>
 
           <div className="bg-green-50 dark:bg-green-950 p-3 rounded-lg">

@@ -6,7 +6,7 @@ import { useTrailData } from "@/hooks/useTrailData"
 import { useTrailTransaction } from "@/hooks/useTrailTransaction"
 
 interface RefundStepProps {
-  status: "pending" | "active" | "completed" | "disabled"
+  status?: "pending" | "active" | "completed" | "disabled"
   isCollapsed?: boolean
   onToggleCollapse?: () => void
   onTransactionSuccess?: () => void
@@ -37,7 +37,7 @@ export function RefundStep({ status, isCollapsed, onToggleCollapse, onTransactio
     if (!userData?.hasDonated) {
       return "You haven't made any donations to this crowdfund."
     }
-    if (crowdfundData?.fundsClaimed || status === "completed") {
+    if (crowdfundData?.fundsClaimed) {
       return "You have already claimed your refund."
     }
     return "You can claim a refund for your donation."
@@ -48,7 +48,7 @@ export function RefundStep({ status, isCollapsed, onToggleCollapse, onTransactio
       stepNumber={3}
       title="Claim Refund"
       description="Get your money back if the goal was not reached"
-      status={status}
+      status={undefined}
       isCollapsed={isCollapsed}
       onToggleCollapse={onToggleCollapse}
       error={error?.message}
@@ -68,12 +68,12 @@ export function RefundStep({ status, isCollapsed, onToggleCollapse, onTransactio
 
         <Button
           onClick={handleSubmit}
-          disabled={!canClaimRefund || status === "disabled" || isProcessing}
+          disabled={!canClaimRefund || isProcessing}
           className="w-full"
           size="lg"
           variant={canClaimRefund ? "default" : "secondary"}
         >
-          {isProcessing ? "Claiming Refund..." : status === "completed" ? "Refund Claimed" : "Claim Refund"}
+          {isProcessing ? "Claiming Refund..." : "Claim Refund"}
         </Button>
 
         {canClaimRefund && (

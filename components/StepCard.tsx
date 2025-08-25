@@ -11,7 +11,7 @@ export interface StepCardProps {
   stepNumber: number
   title: string
   description: string
-  status: "pending" | "active" | "completed" | "disabled"
+  status?: "pending" | "active" | "completed" | "disabled"
   isCollapsed?: boolean
   onToggleCollapse?: () => void
   children?: ReactNode
@@ -29,6 +29,7 @@ export function StepCard({
   error,
 }: StepCardProps) {
   const getStatusIcon = () => {
+    if (!status) return null
     switch (status) {
       case "completed":
         return <CheckCircle className="h-4 w-4 text-green-600" />
@@ -42,6 +43,7 @@ export function StepCard({
   }
 
   const getStatusBadge = () => {
+    if (!status) return null
     switch (status) {
       case "completed":
         return <Badge variant="default">Completed</Badge>

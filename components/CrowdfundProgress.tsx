@@ -42,6 +42,12 @@ export function CrowdfundProgress() {
   const { formattedGoal, formattedTotalRaised, formattedEndDate, progressPercentage, isEnded, isGoalReached } =
     crowdfundData
 
+  const formatZeroDecimal = (value: string) => {
+    const num = Number.parseFloat(value)
+    if (Number.isNaN(num)) return value
+    return Math.floor(num).toString()
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -57,7 +63,7 @@ export function CrowdfundProgress() {
           <div className="flex justify-between text-sm mb-2">
             <span className="text-muted-foreground">Raised</span>
             <span className="font-medium">
-              {formattedTotalRaised} / {formattedGoal} USDC
+              {formatZeroDecimal(formattedTotalRaised)} / {formatZeroDecimal(formattedGoal)} USDC
             </span>
           </div>
           <Progress value={progressPercentage} className="h-2" />
@@ -87,11 +93,7 @@ export function CrowdfundProgress() {
           </p>
         </div>
 
-        {isEnded && !isGoalReached && (
-          <div className="bg-orange-50 dark:bg-orange-950 p-3 rounded-lg">
-            <p className="text-sm text-orange-700 dark:text-orange-300">Goal not reached. Donors can claim refunds.</p>
-          </div>
-        )}
+        {/* Refund notice removed per request */}
       </CardContent>
     </Card>
   )
