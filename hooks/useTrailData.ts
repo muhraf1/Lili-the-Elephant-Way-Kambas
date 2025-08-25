@@ -79,6 +79,23 @@ export function useTrailData() {
     }
   }
 
+  const extractOutputValue = (outputs: any): string => {
+    if (!outputs) return "0"
+    if (Array.isArray(outputs)) {
+      const first = outputs[0]
+      if (first && typeof first === "object" && first.value != null) return String(first.value)
+    }
+    if (typeof outputs === "object") {
+      for (const key of Object.keys(outputs)) {
+        const node = (outputs as any)[key]
+        if (node && typeof node === "object" && node.value != null) {
+          return String(node.value)
+        }
+      }
+    }
+    return "0"
+  }
+
   const fetchUserData = async () => {
     if (!address) {
       console.log("[v0] No wallet address, skipping user data fetch")
@@ -95,12 +112,12 @@ export function useTrailData() {
 
       // Fetch user's USDC balance
       const balanceResponse: any = await TrailReadAPI.getUserUSDCBalance(address)
-      const balance = balanceResponse.outputs?.[0]?.value || "0"
+      const balance = extractOutputValue(balanceResponse.outputs)
       console.log("[v0] User USDC balance raw:", balance)
 
       // Fetch user's donation amount
       const donationResponse: any = await TrailReadAPI.getUserDonation(address)
-      const donationAmount = donationResponse.outputs?.[0]?.value || "0"
+      const donationAmount = extractOutputValue(donationResponse.outputs)
       console.log("[v0] User donation amount:", donationAmount)
 
       const formattedBalance = TrailUtils.formatTokenAmount(balance, 6, 4)
@@ -111,7 +128,7 @@ export function useTrailData() {
         donationAmount,
         formattedUSDCBalance: formattedBalance,
         formattedDonationAmount: TrailUtils.formatTokenAmount(donationAmount),
-        hasDonated: BigInt(donationAmount) > BigInt(0),
+        hasDonated: BigInt(donationAmount || "0") > BigInt(0),
       })
     } catch (err) {
       console.error("[v0] Failed to fetch user data:", err)
@@ -123,7 +140,7 @@ export function useTrailData() {
     try {
       console.log("[v0] Fetching donors count...")
       const response: any = await TrailReadAPI.getDonorsCount()
-      const count = response.outputs?.[0]?.value || "0"
+      const count = extractOutputValue(response.outputs)
       console.log("[v0] Donors count response:", count)
       setDonorsCount(count)
     } catch (err) {
