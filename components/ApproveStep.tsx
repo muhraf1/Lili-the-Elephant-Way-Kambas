@@ -64,7 +64,7 @@ export function ApproveStep({
   const isValidAmount =
     amount !== "" &&
     !isNaN(parsedAmount) &&
-    parsedAmount > 0 &&
+    parsedAmount > 0.00 &&
     parsedAmount <= parsedMaxBalance &&
     /^\d*(\.\d{1,6})?$/.test(amount)
 
