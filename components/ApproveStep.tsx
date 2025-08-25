@@ -34,8 +34,8 @@ export function ApproveStep({
   console.log("[ApproveStep] userData:", userData, "loading:", loading)
 
   const handleAmountChange = useCallback((value: string) => {
-    // Allow empty input, integers, or decimals with up to 4 digits
-    if (value === "" || /^\d*(\.\d{0,4})?$/.test(value)) {
+    // Allow empty input, integers, or decimals with up to 6 digits (USDC has 6 decimals)
+    if (value === "" || /^\d*(\.\d{0,6})?$/.test(value)) {
       setAmount(value)
       onAmountChange?.(value)
     }
@@ -48,17 +48,27 @@ export function ApproveStep({
       // Convert the amount to raw token units (multiply by 10^6)
       const numericAmount = Number(amount) * 1e6
       const rawAmount = Math.floor(numericAmount).toString()
+      console.log(`[ApproveStep] Converting ${amount} USDC to ${rawAmount} raw units`)
       await executeStep(1, rawAmount)
     } catch (err) {
-      console.error("[v0] Approve step failed:", err)
+      console.error("[ApproveStep] Approve step failed:", err)
     }
   }
 
-  // Convert raw USDC balance (base units) to decimal form
-  const maxBalance = userData?.formattedUSDCBalance && !isNaN(Number(userData.formattedUSDCBalance))
-    ? (Number(userData.formattedUSDCBalance) / 1e6).toFixed(4)
-    : "0.0000"
+  // Fix: Convert raw USDC balance correctly
+  // Check different possible balance field names and convert properly
+  const getRawBalance = () => {
+    if (userData?.usdcBalance) return userData.usdcBalance
+    if (userData?.formattedUSDCBalance) return userData.formattedUSDCBalance
+    return "0"
+  }
 
+  const rawBalance = getRawBalance()
+  const maxBalance = rawBalance && !isNaN(Number(rawBalance))
+    ? (Number(rawBalance) / 1e6).toFixed(6)
+    : "0.000000"
+
+  console.log(`[ApproveStep] Raw balance: ${rawBalance}, Formatted: ${maxBalance}`)
 
   // Validate amount
   const parsedAmount = amount ? Number.parseFloat(amount) : 0
@@ -66,19 +76,23 @@ export function ApproveStep({
   const isValidAmount =
     amount !== "" &&
     !isNaN(parsedAmount) &&
-    parsedAmount > 0.00 &&
+    parsedAmount > 0 &&
     parsedAmount <= parsedMaxBalance &&
-    /^\d*(\.\d{0,4})?$/.test(amount)
+    /^\d*(\.\d{0,6})?$/.test(amount)
 
   // Error message for invalid amount
   const getErrorMessage = () => {
     if (amount === "") return null
-    if (!/^\d*(\.\d{0,4})?$/.test(amount)) return "Please enter a valid number (up to 4 decimals)"
+    if (!/^\d*(\.\d{0,6})?$/.test(amount)) return "Please enter a valid number (up to 6 decimals)"
     if (parsedAmount <= 0) return "Amount must be greater than 0"
     if (parsedAmount > parsedMaxBalance) return `Amount exceeds your USDC balance (${maxBalance} USDC)`
     return null
   }
 
+  const setMaxAmount = () => {
+    setAmount(maxBalance)
+    onAmountChange?.(maxBalance)
+  }
 
   return (
     <StepCard
@@ -93,21 +107,36 @@ export function ApproveStep({
       <div className="space-y-4">
         <div>
           <Label htmlFor="approve-amount">Amount to approve (USDC)</Label>
-          <Input
-            id="approve-amount"
-            type="text"
-            placeholder="0.00"
-            value={amount}
-            onChange={(e) => handleAmountChange(e.target.value)}
-            // disabled={status === "disabled" || isProcessing}
-            className="mt-1"
-          />
-          <p className="text-sm font-semibold text-foreground mt-2">
-            Wallet Balance: {loading ? "Loading..." : 
-              userData?.usdcBalance ? 
-                `${(Number(userData.usdcBalance) / 1e6).toFixed(6)} USDC` : 
-                "0.0000 USDC"}
-          </p>
+          <div className="relative mt-1">
+            <Input
+              id="approve-amount"
+              type="text"
+              placeholder="0.000000"
+              value={amount}
+              onChange={(e) => handleAmountChange(e.target.value)}
+              disabled={status === "disabled" || isProcessing}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 px-2 text-xs"
+              onClick={setMaxAmount}
+              disabled={status === "disabled" || isProcessing}
+            >
+              MAX
+            </Button>
+          </div>
+          <div className="flex justify-between items-center mt-2">
+            <p className="text-sm font-semibold text-foreground">
+              Wallet Balance: {loading ? "Loading..." : `${maxBalance} USDC`}
+            </p>
+            {amount && (
+              <p className="text-xs text-muted-foreground">
+                Raw units: {Math.floor(Number(amount || 0) * 1e6)}
+              </p>
+            )}
+          </div>
         </div>
 
         {amount && getErrorMessage() && (
@@ -116,7 +145,7 @@ export function ApproveStep({
 
         <Button
           onClick={handleSubmit}
-          // disabled={!isValidAmount || status === "disabled" || isProcessing}
+          disabled={!isValidAmount || status === "disabled" || isProcessing}
           className="w-full"
           size="lg"
         >
@@ -126,6 +155,7 @@ export function ApproveStep({
         <div className="bg-blue-50 dark:bg-blue-950 p-3 rounded-lg">
           <p className="text-sm text-blue-700 dark:text-blue-300">
             This allows the crowdfund contract to transfer USDC from your wallet when you donate.
+            You can approve any amount up to your balance.
           </p>
         </div>
       </div>
