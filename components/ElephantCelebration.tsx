@@ -41,7 +41,7 @@ export function ElephantCelebration({ isVisible, onComplete }: ElephantCelebrati
 
     // Attempt MP3 first, then fall back to the existing MP4 asset in public/
     // After a donation, user interaction should have occurred, so autoplay should be allowed.
-    void tryPlay(["/elephant-sound.mp3", "/ELEPHANT - Sound Effect.mp4"]).then((played) => {
+    void tryPlay(["/elephant-sound.mp3", "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/git-blob/prj_HkbJ1vD54eFIDtMrTeFnMLyi9pMM/1Rl3OmnCwv9QbFtzevBlFv/public/ELEPHANT%20-%20Sound%20Effect.mp4"]).then((played) => {
       if (!played) {
         // If neither source could play, still show the celebration briefly
         setTimeout(complete, 2000)
