@@ -4,11 +4,13 @@
 export const TRAIL_CONFIG = {
   trailId: "0198d5f9-8412-737e-afc2-4c6816208d9f",
   versionId: "0198d5f9-841b-7d10-9d67-1b426d3b7a2d",
-  trailAppId: "0198d5fd-ef37-7140-b3e1-eab1ce3464d0",
-  crowdfundId: "3336",
+  trailAppId: "0198e014-2be1-7a23-93c5-32915deb0a44",
+  crowdfundId: "3356",
   baseUrl: "https://trails-api.herd.eco/v1",
   explorerUrl: "https://herd.eco/base",
 } as const
+
+
 
 export const HEADERS = {
   "Content-Type": "application/json",
