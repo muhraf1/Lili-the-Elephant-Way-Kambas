@@ -4,6 +4,24 @@ import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 
+function getBaseUrl(): string | undefined {
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL
+  if (!envUrl) return undefined
+  return envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl
+}
+
+function toAbsoluteUrl(pathOrUrl: string): string {
+  try {
+    // If it's already an absolute URL, return as is
+    // eslint-disable-next-line no-new
+    new URL(pathOrUrl)
+    return pathOrUrl
+  } catch {}
+  const base = getBaseUrl()
+  if (!base) return pathOrUrl
+  return pathOrUrl.startsWith("/") ? `${base}${pathOrUrl}` : `${base}/${pathOrUrl}`
+}
+
 interface FarcasterMiniAppAction {
   type: "launch_miniapp"
   name: string
@@ -27,6 +45,18 @@ function createMiniAppMetadata(config: FarcasterMiniAppEmbed): Metadata {
   return {
     other: {
       "fc:miniapp": JSON.stringify(config),
+      // For backward compatibility
+      "fc:frame": JSON.stringify({
+        ...config,
+        button: {
+          ...config.button,
+          action: {
+            ...config.button.action,
+            // Back-compat requires 'launch_frame'
+            type: "launch_frame" as unknown as "launch_miniapp",
+          },
+        },
+      }),
     },
   }
 }
@@ -37,14 +67,14 @@ export const metadata: Metadata = {
   generator: "v0.app",
   ...createMiniAppMetadata({
     version: "1",
-    imageUrl: "/api/miniapp-image",
+    imageUrl: toAbsoluteUrl("/api/miniapp-image"),
     button: {
       title: "🐘 Support Elephants",
       action: {
         type: "launch_miniapp",
         name: "Elephant Crowdfund",
-        url: process.env.NEXT_PUBLIC_APP_URL || "https://your-app-url.vercel.app",
-        splashImageUrl: "/api/splash-image",
+        url: getBaseUrl() || "https://your-app-url.vercel.app",
+        splashImageUrl: toAbsoluteUrl("/api/splash-image"),
         splashBackgroundColor: "#2D5A27",
       },
     },
@@ -59,14 +89,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <meta property="fc:frame" content="vNext" />
-        <meta property="fc:frame:image" content="/api/miniapp-image" />
-        <meta property="fc:frame:button:1" content="🐘 Support Elephants" />
-        <meta property="fc:frame:button:1:action" content="launch_miniapp" />
-        <meta
-          property="fc:frame:button:1:target"
-          content={process.env.NEXT_PUBLIC_APP_URL || "https://your-app-url.vercel.app"}
-        />
         <style>{`
 html {
   font-family: ${GeistSans.style.fontFamily};
