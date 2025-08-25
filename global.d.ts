@@ -1,0 +1,6 @@
+declare module "wagmi"
+declare module "@wagmi/core"
+declare module "viem"
+declare module "viem/chains"
+declare module "@farcaster/miniapp-sdk"
+

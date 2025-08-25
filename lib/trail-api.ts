@@ -1,4 +1,6 @@
-import { TRAIL_CONFIG, HEADERS, READ_NODES, STEPS } from "./trail-constants"
+import { TRAIL_CONFIG, HEADERS, READ_NODES, STEPS, TOKEN_CONFIG } from "./trail-constants"
+import { createPublicClient, http } from "viem"
+import { base } from "viem/chains"
 
 // Types based on the trail API documentation
 export interface UserInputs {
@@ -154,17 +156,38 @@ export class TrailInputBuilder {
 
 // Read node helpers
 export class TrailReadAPI {
+  private static publicClient = createPublicClient({ chain: base, transport: http() })
+  private static ERC20_ABI = [
+    {
+      type: "function",
+      name: "balanceOf",
+      stateMutability: "view",
+      inputs: [{ name: "account", type: "address" }],
+      outputs: [{ name: "", type: "uint256" }],
+    },
+  ] as const
+
   // Get user's USDC balance
   static async getUserUSDCBalance(walletAddress: string, executionId?: string) {
-    const request: ReadRequest = {
-      walletAddress,
-      userInputs: TrailInputBuilder.buildReadInputs(READ_NODES.USDC_BALANCE, {
-        "inputs.token": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913", // USDC contract address on Base
-      }),
-      execution: executionId ? { type: "manual", executionId } : { type: "latest" },
+    try {
+      const balance = await this.publicClient.readContract({
+        address: TOKEN_CONFIG.USDC.address as `0x${string}`,
+        abi: this.ERC20_ABI,
+        functionName: "balanceOf",
+        args: [walletAddress as `0x${string}`],
+      })
+      return { outputs: [{ value: balance.toString() }] }
+    } catch (err) {
+      console.error("[v0] viem balanceOf failed, falling back to Trail read node:", err)
+      const request: ReadRequest = {
+        walletAddress,
+        userInputs: TrailInputBuilder.buildReadInputs(READ_NODES.USDC_BALANCE, {
+          "inputs.token": TOKEN_CONFIG.USDC.address,
+        }),
+        execution: executionId ? { type: "manual", executionId } : { type: "latest" },
+      }
+      return TrailAPI.getReadData(READ_NODES.USDC_BALANCE, request)
     }
-
-    return TrailAPI.getReadData(READ_NODES.USDC_BALANCE, request)
   }
 
   // Get user's donation amount for the crowdfund
