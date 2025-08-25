@@ -13,7 +13,6 @@ import { STEPS } from "@/lib/trail-constants"
 // Trail API documentation: https://trails-api.herd.eco/v1/trails/0198e00e-de57-7daf-81b9-133db5520147/versions/0198e00e-de63-7f79-be98-81b08e0a355c/guidebook.txt?trailAppId=0198a42e-6183-745a-abca-cb89fd695d50
 
 interface ApproveStepProps {
-  status?: "pending" | "active" | "completed" | "disabled"
   isCollapsed?: boolean
   onToggleCollapse?: () => void
   onAmountChange?: (amount: string) => void
@@ -22,7 +21,6 @@ interface ApproveStepProps {
 }
 
 export function ApproveStep({
-  status,
   isCollapsed,
   onToggleCollapse,
   onAmountChange,
@@ -101,7 +99,6 @@ export function ApproveStep({
       stepNumber={1}
       title={STEPS.APPROVE.title}
       description={STEPS.APPROVE.description}
-      status={undefined}
       isCollapsed={isCollapsed}
       onToggleCollapse={onToggleCollapse}
       error={error?.message}
