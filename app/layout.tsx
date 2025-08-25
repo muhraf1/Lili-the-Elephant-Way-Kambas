@@ -5,7 +5,7 @@ import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 
 function getBaseUrl(): string | undefined {
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL || "https://v0-elephant-crowdfund-app.vercel.app"
   if (!envUrl) return undefined
   return envUrl.endsWith("/") ? envUrl.slice(0, -1) : envUrl
 }
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
       action: {
         type: "launch_miniapp",
         name: "Elephant Crowdfund",
-        url: getBaseUrl() || "v0-elephant-crowdfund-app.vercel.app",
+        url: getBaseUrl() || "https://v0-elephant-crowdfund-app.vercel.app",
         splashImageUrl: toAbsoluteUrl("/api/splash-image"),
         splashBackgroundColor: "#2D5A27",
       },
