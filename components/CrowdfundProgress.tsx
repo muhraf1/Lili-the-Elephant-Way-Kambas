@@ -48,6 +48,12 @@ export function CrowdfundProgress() {
     return Math.floor(num).toString()
   }
 
+  const formatTwoDecimals = (value: string) => {
+    const num = Number.parseFloat(value)
+    if (Number.isNaN(num)) return value
+    return num.toFixed(2)
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -63,7 +69,7 @@ export function CrowdfundProgress() {
           <div className="flex justify-between text-sm mb-2">
             <span className="text-muted-foreground">Raised</span>
             <span className="font-medium">
-              {formatZeroDecimal(formattedTotalRaised)} / {formatZeroDecimal(formattedGoal)} USDC
+              {formatTwoDecimals(formattedTotalRaised)} / {formatZeroDecimal(formattedGoal)} USDC
             </span>
           </div>
           <Progress value={progressPercentage} className="h-2" />
