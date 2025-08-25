@@ -54,8 +54,8 @@ export function ApproveStep({
 
   // Convert raw USDC balance (base units) to decimal form
   const maxBalance = userData?.formattedUSDCBalance && !isNaN(Number(userData.formattedUSDCBalance))
-    ? (Number(userData.formattedUSDCBalance) / 1e6).toFixed(6)
-    : "0.000000"
+    ? (Number(userData.formattedUSDCBalance) / 1e6).toFixed(4)
+    : "0.0000"
 
 
   // Validate amount
@@ -111,7 +111,7 @@ export function ApproveStep({
             className="mt-1"
           />
           <p className="text-sm font-semibold text-foreground mt-2">
-            Wallet Balance: {loading ? "Loading..." : userData?.formattedUSDCBalance ? `${maxBalance} USDC` : "Not Founds USDC"}
+            Wallet Balance: {loading ? "Loading..." : userData?.formattedUSDCBalance ? `${maxBalance} USDC` : "Not Found USDC"}
           </p>
         </div>
 
