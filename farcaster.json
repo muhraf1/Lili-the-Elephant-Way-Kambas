@@ -1,0 +1,20 @@
+{
+    "frame": {
+      "name": "Lili the Elephants",
+      "version": "1",
+      "iconUrl": "https://v0-elephant-crowdfund-app.vercel.app/icon.png",
+      "homeUrl": "https://v0-elephant-crowdfund-app.vercel.app",
+      "imageUrl": "https://v0-elephant-crowdfund-app.vercel.app/image.png",
+      "splashImageUrl": "https:// v0-elephant-crowdfund-app.vercel.app/splash.png",
+      "splashBackgroundColor": "#43734C",
+      "webhookUrl": "https://v0-elephant-crowdfund-app.vercel.app/api/webhook",
+      "subtitle": "Lili",
+      "description": "Lili",
+      "primaryCategory": "developer-tools"
+    },
+    "accountAssociation": {
+      "header": "eyJmaWQiOjg1MzM5MCwidHlwZSI6ImF1dGgiLCJrZXkiOiIweDVCNkY2NENhY2IyREUwM0JGNzA1MWNFMTYyOTUzYTEzMWU0QjI1NGUifQ",
+      "payload": "eyJkb21haW4iOiIgdjAtZWxlcGhhbnQtY3Jvd2RmdW5kLWFwcC52ZXJjZWwuYXBwIn0",
+      "signature": "t2O8NtQPflQ2KLCYvmj9PSLw+aLNTqZeaL9aqNbvd/BCwN0hJ0idQa7AGoCs1rbbriASvU4nmTOShRXKhr8lwhs="
+    }
+  }
